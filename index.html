@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تشخيص صحة الدجاج بالذكاء الاصطناعي</title>
+    <meta name="description" content="نظام تشخيص شامل لصحة الدجاج - تحليل البراز، تحديد السلالة، تشخيص مشاكل الرقبة">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    
+    <header class="header" id="mainHeader">
+        <div class="header-fixed-text">قد يقال</div>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>تشخيص الدجاج</span>
+                </div>
+
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <nav id="mainNav" class="main-nav">
+                    <ul>
+                        <li><a href="#home" class="nav-link active">الرئيسية</a></li>
+                        <li><a href="#tools" class="nav-link">الأدوات</a></li>
+                        <li><a href="#about" class="nav-link">عن النظام</a></li>
+                        <li><a href="#contact" class="nav-link">اتصل بنا</a></li>
+                    </ul>
+                </nav>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" id="loginButton">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>تسجيل الدخول</span>
+                    </button>
+                    <button class="btn btn-primary" id="trialButton">
+                        <i class="fas fa-rocket"></i>
+                        <span>تجربة مجانية</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title animate-fade-in">
+                    نظام تشخيص شامل
+                    <span class="gradient-text">لصحة الدجاج</span>
+                </h1>
+                <p class="hero-description animate-fade-in-delay-1">
+                    استخدم أحدث تقنيات الذكاء الاصطناعي للكشف المبكر عن الأمراض وتحديد السلالات
+                    وتشخيص المشاكل الصحية بدقة عالية تصل إلى 98%
+                </p>
+                <div class="hero-buttons animate-fade-in-delay-2">
+                    <button class="btn btn-primary btn-large" id="startAnalysisBtn">
+                        <i class="fas fa-play"></i>
+                        <span>ابدأ التشخيص الآن</span>
+                    </button>
+                    <button class="btn btn-outline btn-large" id="learnMoreBtn">
+                        <i class="fas fa-info-circle"></i>
+                        <span>تعرف على المزيد</span>
+                    </button>
+                </div>
+
+                <!-- Hero Stats -->
+                <div class="hero-stats animate-fade-in-delay-3">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="3">0</div>
+                        <div class="stat-label">أدوات تشخيص</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="98">0</div>
+                        <div class="stat-label">نسبة الدقة %</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="1000">0</div>
+                        <div class="stat-label">تحليل يومي</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animated Background -->
+        <div class="hero-bg-animation">
+            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;">
+                <i class="fas fa-feather"></i>
+            </div>
+            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 1s;">
+                <i class="fas fa-egg"></i>
+            </div>
+            <div class="floating-icon" style="left: 20%; top: 70%; animation-delay: 2s;">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <div class="floating-icon" style="left: 75%; top: 75%; animation-delay: 1.5s;">
+                <i class="fas fa-microscope"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content" id="tools">
+        <div class="container">
+            <h2 class="tools-title">اختر أداة التشخيص</h2>
+
+            <div class="tools-grid">
+                
+
+                <!-- Tool 5: Comprehensive Diagnosis -->
+                <!-- <a href="@ABOOD-bitar/comprehensive-diagnosis.html" class="tool-card">
+                    <div class="tool-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="tool-title">التشخيص الشامل المتكامل</h3>
+                    <p class="tool-description">
+                        نظام متكامل يجمع بين تحليل صورة الدجاجة والبراز لتقديم تشخيص شامل مع خطة علاج متكاملة
+                    </p>
+                    <div class="tool-features">
+                        <span class="feature-badge">تحليل مزدوج</span>
+                        <span class="feature-badge">8 مؤشرات</span>
+                        <span class="feature-badge">تقرير مفصل</span>
+                    </div>
+                </a> -->
+            
+                <!-- Tool 7: Comprehensive Veterinary Diagnosis -->
+                 
+                <a href="main-project/index.html" class="tool-card">
+                    
+                        <div class="tool-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                <path d="M18 12h-4l-2 6"></path>
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3 class="tool-title">التشخيص البيطري الشامل</h3>
+                        <p class="tool-description">
+                            نظام متكامل يجمع بين تحليل الدجاجة الحية والبراز والأعضاء الداخلية لتقديم تشخيص طبي متكامل مع
+                            خطة علاج مفصلة
+                        </p>
+                        <div class="tool-features">
+                            <span class="feature-badge">3 أنواع تحليل</span>
+                            <span class="feature-badge">تشخيص متكامل</span>
+                            <span class="feature-badge">تقرير طبي مفصل</span>
+                        </div>
+                    
+                </a>
+                <!-- <a href="abdullah-video-application-2/video-diagnosis.html" class="tool-card">
+                    <div class="tool-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15.6 11.6L22 7v10l-6.4-4.5v-1zM4 5h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="tool-title">التشخيص الحركي بالفيديو</h3>
+                    <p class="tool-description">
+                        قم بتصوير فيديو قصير للدجاجة لتحليل نمط المشي، التنفس، والسلوك العصبي باستخدام الذكاء الاصطناعي
+                    </p>
+                    <div class="tool-features">
+                        <span class="feature-badge">تحليل الحركة</span>
+                        <span class="feature-badge">رصد التنفس</span>
+                        <span class="feature-badge">كشف عصبي</span>
+                    </div>
+                </a> -->
+
+
+            </div>
+
+
+
+
+            <!-- Info Section -->
+            <section class="info-section" id="about">
+                <h3 class="info-title">لماذا تستخدم نظامنا؟</h3>
+                <ul class="info-list">
+                    <li>
+                        <span class="bullet">•</span>
+                        <span>تشخيص فوري ودقيق باستخدام الذكاء الاصطناعي</span>
+                    </li>
+                    <li>
+                        <span class="bullet">•</span>
+                        <span>كشف مبكر عن الأمراض والمشاكل الصحية</span>
+                    </li>
+                    <li>
+                        <span class="bullet">•</span>
+                        <span>توصيات علاجية مدروسة لكل حالة</span>
+                    </li>
+                    <li>
+                        <span class="bullet">•</span>
+                        <span>واجهة سهلة الاستخدام ومتوافقة مع الهواتف</span>
+                    </li>
+                    <li>
+                        <span class="bullet">•</span>
+                        <span>نتائج مفصلة مع نسب احتمالية دقيقة</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <p>© 2025 نظام تشخيص صحة الدجاج - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Header functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const header = document.getElementById('mainHeader');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mainNav = document.getElementById('mainNav');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Scroll effect for header
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Mobile menu toggle
+            mobileMenuToggle?.addEventListener('click', function () {
+                this.classList.toggle('active');
+                mainNav.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking on links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function () {
+                    mobileMenuToggle.classList.remove('active');
+                    mainNav.classList.remove('active');
+
+                    // Update active link
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Hero buttons functionality
+            document.getElementById('startAnalysisBtn')?.addEventListener('click', function () {
+                document.getElementById('tools')?.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+
+            document.getElementById('learnMoreBtn')?.addEventListener('click', function () {
+                document.getElementById('about')?.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+
+            // Auth buttons functionality
+            document.getElementById('loginButton')?.addEventListener('click', function () {
+                console.log('Login clicked');
+            });
+
+            document.getElementById('trialButton')?.addEventListener('click', function () {
+                console.log('Trial clicked');
+            });
+
+            // Animated Counter for Stats
+            function animateCounter(element, target, duration = 2000) {
+                let start = 0;
+                const increment = target / (duration / 16);
+                const timer = setInterval(() => {
+                    start += increment;
+                    if (start >= target) {
+                        element.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        element.textContent = Math.floor(start);
+                    }
+                }, 16);
+            }
+
+            // Initialize counters when hero section is in view
+            function initCounters() {
+                const statNumbers = document.querySelectorAll('.stat-number');
+
+                statNumbers.forEach(stat => {
+                    const target = parseInt(stat.getAttribute('data-count'));
+                    animateCounter(stat, target);
+                });
+            }
+
+            // Start counters when page loads
+            initCounters();
+        });
+    </script>
+</body>
+
+</html>

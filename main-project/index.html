@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحلل البيطري (GPT-4)</title>
+    <meta name="description" content="نظام تشخيص بيطري المتقدم     GPT-4 Vision">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .upload-card-centered {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .triple-upload-grid {
+            display: grid;
+            /* لكي تظهر الشبكة */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+        }
+
+        .spinner-large i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header" id="mainHeader">
+        <div class="header-fixed-text">قد يقال</div>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>المحلل البيطري الذكي</span>
+                </a>
+
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
+                    <span></span><span></span><span></span>
+                </button>
+
+                <nav id="mainNav" class="main-nav">
+                    <ul>
+                        <li><a href="#" class="nav-link active">التحليل البيطري</a></li>
+                    </ul>
+                </nav>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" onclick="location.reload()">
+                        <i class="fas fa-redo"></i>
+                        <span>تحليل جديد</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title animate-fade-in">
+                    المحلل البيطري
+                    <span class="gradient-text"> (GPT-4)</span>
+                </h1>
+                <p class="hero-description animate-fade-in-delay-1">
+                    نظام متقدم يعتمد على نظام متقدم لتشخيص أمراض الدواجن بدقة وكتابة تقارير طبية شاملة.
+                </p>
+
+                <div class="hero-stats animate-fade-in-delay-2">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="7">0</div>
+                        <div class="stat-label">نقاط تشخيصية</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="99">0</div>
+                        <div class="stat-label">تكنولوجيا متقدمة %</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="24">0</div>
+                        <div class="stat-label">ساعة خدمة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-bg-animation">
+            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;"><i class="fas fa-dove"></i>
+            </div>
+            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 1s;"><i class="fas fa-brain"></i>
+            </div>
+            <div class="floating-icon" style="left: 20%; top: 70%; animation-delay: 2s;"><i
+                    class="fas fa-file-medical-alt"></i></div>
+        </div>
+    </section>
+
+    <main class="main-content" id="upload">
+        <div class="container">
+            <div class="content-wrapper">
+
+
+
+                <section class="upload-section">
+                    <div class="section-title">
+                        <h2>رفع الصور للتشخيص</h2>
+                        <p>قم باختيار الأعراض أولاً، ثم ارفع الصور المتاحة لزيادة دقة التشخيص</p>
+                    </div>
+
+                    <div class="case-history-box">
+                        <h3 class="history-title">
+                            <i class="fas fa-clipboard-list"></i> سجل الحالة والأعراض الملاحظة (اختر أولاً لفتح رفع
+                            الصور):
+                        </h3>
+                        <div class="symptoms-grid" id="symptomsChecklist">
+                        </div>
+                    </div>
+
+                    <div class="triple-upload-grid locked-section" id="uploadGrid">
+
+                        <div class="upload-card">
+                            <div class="upload-header">
+                                <i class="fas fa-dove"></i>
+                                <h3>صور الدجاجة (المظهر)</h3>
+                            </div>
+                            <div class="upload-area" id="area-chicken"
+                                onclick="document.getElementById('input-chicken').click()">
+                                <div class="upload-icon"><i class="fas fa-camera"></i></div>
+                                <p>اضغط لرفع صورة الدجاجة</p>
+                                <img id="preview-chicken" class="mini-preview" style="display:none;">
+                            </div>
+                            <input type="file" id="input-chicken" accept="image/*" hidden>
+                        </div>
+
+                        <div class="upload-card">
+                            <div class="upload-header">
+                                <i class="fas fa-vial"></i>
+                                <h3>اضافة صور أخرى</h3>
+                            </div>
+                            <div class="upload-area" id="area-feces"
+                                onclick="document.getElementById('input-feces').click()">
+                                <div class="upload-icon"><i class="fas fa-flask"></i></div>
+                                <p>اضغط لرفع الصورة </p>
+                                <img id="preview-feces" class="mini-preview" style="display:none;">
+                            </div>
+                            <input type="file" id="input-feces" accept="image/*" hidden>
+                        </div>
+
+                        <div class="upload-card">
+                            <div class="upload-header">
+                                <i class="fas fa-heartbeat"></i>
+                                <h3>صور الأعضاء (تشريح)</h3>
+                            </div>
+
+                            <div class="organ-select-wrapper" style="padding: 0 20px 10px;">
+                                <label for="organ-type"
+                                    style="display:block; margin-bottom:5px; font-size:0.9rem; color:#666;">
+                                    يجب تحديد العضو لفتح الكاميرا:
+                                </label>
+                                <select id="organ-type" class="form-select" style="border: 2px solid #e0e0e0;">
+                                    <option value="" disabled selected>-- اختر العضو (إجباري) --</option>
+                                    <option value="Intestine">الأمعاء (Intestine)</option>
+                                    <option value="Proventriculus">الغدة المعدية (Proventriculus)</option>
+                                    <option value="Gizzard">القونصة (Gizzard)</option>
+                                    <option value="Liver">الكبد (Liver)</option>
+                                    <option value="Spleen">الطحال (Spleen)</option>
+                                    <option value="Kidney">الكلى (Kidney)</option>
+                                    <option value="Heart_Pericardium">القلب وغشاء التامور</option>
+                                    <option value="Lungs">الرئتان (Lungs)</option>
+                                    <option value="Air_Sacs">الأكياس الهوائية (Air Sacs)</option>
+                                    <option value="Trachea">القصبة الهوائية (Trachea)</option>
+                                    <option value="Bursa">جراب فابريشيوس (Bursa)</option>
+                                    <option value="Thymus">الغدة الزعترية (Thymus)</option>
+                                    <option value="Brain">الدماغ (Brain)</option>
+                                    <option value="Ovary_Oviduct">المبيض وقناة البيض</option>
+                                    <option value="Joints_Tendons">المفاصل والأوتار</option>
+                                </select>
+                            </div>
+
+                            <div class="upload-area disabled-upload" id="area-organ">
+                                <div class="upload-icon"><i class="fas fa-microscope"></i></div>
+                                <p id="organ-placeholder-text">يرجى اختيار العضو أولاً</p>
+                                <img id="preview-organ" class="mini-preview" style="display:none;">
+                            </div>
+                            <input type="file" id="input-organ" accept="image/*" hidden disabled>
+                        </div>
+
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="analyzeBtn" class="btn btn-primary btn-large" disabled>
+                            <i class="fas fa-microscope"></i> بدء التحليل الشامل
+                        </button>
+                    </div>
+                </section>
+
+                <div id="loadingState" class="loading-state" style="display: none;">
+                    <div class="spinner-large">
+                        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+                    </div>
+                    <h3 style="margin-top: 20px;">جاري تحليل الصورة ...</h3>
+                    <p>يتم الآن تحليل الصورة وصياغة التقرير الطبي المفصل (النقاط 1-7)</p>
+                </div>
+
+                <section id="resultsArea" class="results-section" style="display: none;">
+                    <div class="results-header">
+                        <div class="section-title">
+                            <h2>التقرير الطبي المفصل</h2>
+                            <p>التشخيص الصادر عن نموذج GPT-4 Vision</p>
+                        </div>
+                        <div class="results-actions">
+                            <button class="btn btn-outline" onclick="window.print()">
+                                <i class="fas fa-print"></i> حفظ PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="comprehensive-results" id="bitar">
+                    </div>
+                </section>
+
+                <section class="info-section">
+                    <h3 class="info-title"><i class="fas fa-info-circle"></i> تنويه هام</h3>
+                    <ul class="info-list">
+                        <li><span class="bullet">•</span> هذا النظام يستخدم أحدث تقنيات التكنولوجيا (Generative GPT).
+                        </li>
+                        <li><span class="bullet">•</span> النتائج هي للاسترشاد الطبي ومطلوب مراجعتها من قبل مختص في
+                            الحالات الحرجة.</li>
+                    </ul>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 المحلل البيطري - Powered by OpenAI GPT-4o</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Header Scroll
+            const header = document.getElementById('mainHeader');
+            window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+
+            // Mobile Menu
+            const toggle = document.getElementById('mobileMenuToggle');
+            const nav = document.getElementById('mainNav');
+            if (toggle) toggle.addEventListener('click', () => { toggle.classList.toggle('active'); nav.classList.toggle('active'); });
+
+            // Counters Animation
+            document.querySelectorAll('.stat-number').forEach(stat => {
+                let start = 0; const target = parseInt(stat.getAttribute('data-count'));
+                const timer = setInterval(() => {
+                    start += Math.ceil(target / 50);
+                    if (start >= target) { stat.textContent = target; clearInterval(timer); }
+                    else { stat.textContent = start; }
+                }, 40);
+            });
+        });
+    </script>
+</body>
+
+</html>
