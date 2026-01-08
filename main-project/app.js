@@ -3,8 +3,14 @@
  */
 
 // 
-const API_KEY = "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";
 
+
+
+/**
+ * app.js 
+ */
+
+//
 
 const analyzeBtn = document.getElementById('analyzeBtn');
 const loadingState = document.getElementById('loadingState');
@@ -12,6 +18,11 @@ const resultsSection = document.getElementById('resultsArea');
 const bitar = document.getElementById('bitar');
 const uploadGrid = document.getElementById('uploadGrid');
 
+
+const flockTypeInput = document.getElementById('flock-type');
+const flockAgeInput = document.getElementById('flock-age');
+const flockCountInput = document.getElementById('flock-count');
+const mortalityInput = document.getElementById('mortality-rate');
 
 const symptomsList = [
     "فقدان الشهية", "نقص استهلاك العلف والماء", "الهزال ونقص الوزن", "انتفاش الريش",
@@ -22,7 +33,6 @@ const symptomsList = [
     "تورم المفاصل أو صعوبة الحركة", "انخفاض أو توقف إنتاج البيض", "بيض مشوه أو رقيق القشرة"
 ];
 
-
 let caseImages = {
     chicken: null,
     feces: null,
@@ -30,9 +40,41 @@ let caseImages = {
 };
 let selectedSymptoms = [];
 
+
+function checkAllInputsAndToggle() {
+
+    const hasSymptoms = selectedSymptoms.length > 0;
+
+
+    const isTypeFilled = flockTypeInput && flockTypeInput.value !== "";
+    const isAgeFilled = flockAgeInput && flockAgeInput.value !== "";
+    const isCountFilled = flockCountInput && flockCountInput.value.trim() !== "";
+    const isMortalityFilled = mortalityInput && mortalityInput.value.trim() !== "";
+
+
+    if (hasSymptoms && isTypeFilled && isAgeFilled && isCountFilled && isMortalityFilled) {
+        if (uploadGrid) {
+            uploadGrid.classList.remove('locked-section');
+            uploadGrid.classList.add('unlocked');
+        }
+    } else {
+        if (uploadGrid) {
+            uploadGrid.classList.add('locked-section');
+            uploadGrid.classList.remove('unlocked');
+        }
+    }
+}
+
+
+if (flockTypeInput) flockTypeInput.addEventListener('change', checkAllInputsAndToggle);
+if (flockAgeInput) flockAgeInput.addEventListener('change', checkAllInputsAndToggle);
+if (flockCountInput) flockCountInput.addEventListener('input', checkAllInputsAndToggle);
+if (mortalityInput) mortalityInput.addEventListener('input', checkAllInputsAndToggle);
+
+
 const symptomsContainer = document.getElementById('symptomsChecklist');
 if (symptomsContainer) {
-  
+
     symptomsList.forEach(symptom => {
         const label = document.createElement('label');
         label.className = 'checkbox-wrapper';
@@ -46,22 +88,13 @@ if (symptomsContainer) {
     const checkboxes = document.querySelectorAll('.symptom-checkbox');
     checkboxes.forEach(box => {
         box.addEventListener('change', () => {
-     
+
             selectedSymptoms = Array.from(checkboxes)
                 .filter(i => i.checked)
                 .map(i => i.value);
-            
-            if (selectedSymptoms.length > 0) {
-                if(uploadGrid) {
-                    uploadGrid.classList.remove('locked-section');
-                    uploadGrid.classList.add('unlocked');
-                }
-            } else {
-                if(uploadGrid) {
-                    uploadGrid.classList.add('locked-section');
-                    uploadGrid.classList.remove('unlocked');
-                }
-            }
+
+
+            checkAllInputsAndToggle();
         });
     });
 }
@@ -159,7 +192,12 @@ if (analyzeBtn) {
 
 async function getAnalysisFromGPT() {
     const organType = document.getElementById('organ-type') ? document.getElementById('organ-type').value : "Unspecified";
-    
+
+
+    const flockType = flockTypeInput ? flockTypeInput.value : "Unknown";
+    const flockAge = flockAgeInput ? flockAgeInput.value : "Unknown";
+    const flockCount = flockCountInput ? flockCountInput.value : "Unknown";
+    const mortality = mortalityInput ? mortalityInput.value : "Unknown";
 
     const historyText = selectedSymptoms.length > 0 ? selectedSymptoms.join(", ") : "No specific history provided";
 
@@ -167,6 +205,7 @@ async function getAnalysisFromGPT() {
     Act as a highly experienced Poultry Veterinarian and Pathologist. Analyze the attached images combined as a SINGLE CASE.
     
     Context Provided:
+    - **Flock Data:** Type: ${flockType}, Age: ${flockAge}, Size: ${flockCount}, Mortality: ${mortality}
     - **Clinical History / Symptoms Reported:** ${historyText}
     - Chicken Image: ${caseImages.chicken ? "Provided" : "Not provided"}
     - Feces Image: ${caseImages.feces ? "Provided" : "Not provided"}
@@ -177,8 +216,8 @@ async function getAnalysisFromGPT() {
     1. **Correlate findings:** Connect symptoms from all images.
     2. **Probability:** MUST be a percentage (e.g., '95%').
     3. **Diagnosis Reasoning:** - If Chicken exists: Analyze Head, Balance, Movement, Eyes, Feathers.
-       - If Feces exists: Analyze Color, Consistency.
-       - **If Organ exists (${organType}):** You MUST provide a professional pathological description. Describe: Enlargement, Color (pale/dark), Lesions (spots, necrosis, hemorrhages), Texture, and Fibrin presence. Use specific terms like "Multifocal necrosis", "Petechial hemorrhage", "Enlarged/Hepatomegaly".
+        - If Feces exists: Analyze Color, Consistency.
+        - **If Organ exists (${organType}):** You MUST provide a professional pathological description. Describe: Enlargement, Color (pale/dark), Lesions (spots, necrosis, hemorrhages), Texture, and Fibrin presence. Use specific terms like "Multifocal necrosis", "Petechial hemorrhage", "Enlarged/Hepatomegaly".
     4. **Diagnosis Summary:** Synthesize all findings into a conclusion.
     
     Produce a JSON report strictly following this structure in ARABIC:
@@ -233,10 +272,12 @@ async function getAnalysisFromGPT() {
     if (caseImages.chicken) contentArray.push({ type: "image_url", image_url: { url: caseImages.chicken } });
     if (caseImages.feces) contentArray.push({ type: "image_url", image_url: { url: caseImages.feces } });
     if (caseImages.organ) contentArray.push({ type: "image_url", image_url: { url: caseImages.organ } });
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("/.netlify/functions/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+        headers: {
+            "Content-Type": "application/json"
+            // ⚠️ لاحظ: لا نرسل الـ Authorization هنا، السيرفر سيضيفه
+        },
         body: JSON.stringify({
             model: "gpt-4o",
             messages: [{ role: "user", content: contentArray }],
@@ -249,17 +290,32 @@ async function getAnalysisFromGPT() {
     if (!data.choices || !data.choices[0].message.content) throw new Error("No response from AI");
     return JSON.parse(data.choices[0].message.content);
 }
+// const response = await fetch("https://api.openai.com/v1/chat/completions", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+//     body: JSON.stringify({
+//         model: "gpt-4o",
+//         messages: [{ role: "user", content: contentArray }],
+//         response_format: { type: "json_object" },
+//         temperature: 0.2
+//     })
+// });
+
+//     const data = await response.json();
+//     if (!data.choices || !data.choices[0].message.content) throw new Error("No response from AI");
+//     return JSON.parse(data.choices[0].message.content);
+// }
 
 
 function renderReport(data) {
-    bitar.innerHTML = ''; 
+    bitar.innerHTML = '';
 
     if (data.error) {
         bitar.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
         return;
     }
 
- 
+
     createCard('fas fa-dna', 'نوع الدجاجة', `
         <div style="padding: 5px;">
             <div style="display:flex; align-items:center; gap: 10px; margin-bottom: 10px;">
@@ -301,11 +357,11 @@ function renderReport(data) {
         </div>
     `);
 
-  
+
     let linksHtml = data["4_primary_diagnosis"].links.map(l => `<a href="${l}" target="_blank" style="color:#b78a00; text-decoration:underline;">اضغط هنا</a>`).join(' | ');
     const reasons = data["4_primary_diagnosis"].detailed_reasoning;
-    
-    
+
+
     let fecesHtml = '';
     if (reasons.feces_color && reasons.feces_color !== 'N/A') {
         fecesHtml = `
@@ -322,7 +378,7 @@ function renderReport(data) {
 
     let organHtml = '';
     const selectedOrganName = document.getElementById('organ-type') ? document.getElementById('organ-type').options[document.getElementById('organ-type').selectedIndex].text : "عضو";
-    
+
     if (reasons.organ_analysis && reasons.organ_analysis !== 'N/A') {
         organHtml = `
         <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:15px;">
@@ -335,7 +391,7 @@ function renderReport(data) {
         </div>`;
     }
 
-  
+
     const symptomsHtml = `
         <div style="margin-top:15px; background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; padding:15px;">
             <h5 style="color:#3949ab; margin-bottom:10px; font-weight:bold; display:flex; align-items:center; gap:5px;">
@@ -398,15 +454,6 @@ function renderReport(data) {
 
             <div class="source-box"><i class="fas fa-link"></i> المراجع: ${linksHtml}</div>
         </div>
-        
-        ${symptomsHtml}
-
-        <div style="margin-top:15px; background:#e3f2fd; padding:12px; border-radius:6px; border-right:4px solid #2196f3;">
-            <strong style="color:#0d47a1; display:block; margin-bottom:5px;">💡 الخلاصة والربط بين الأعراض:</strong>
-            <p style="margin:0; color:#333; font-size:0.95rem; line-height:1.6;">${data["4_primary_diagnosis"].diagnosis_summary}</p>
-        </div>
-
-        <div class="source-box"><i class="fas fa-link"></i> المراجع: ${linksHtml}</div>
     `, true);
 
 
@@ -438,7 +485,7 @@ function renderReport(data) {
         </li>`;
     });
     altHtml += '</ul>';
-    
+
     createCard('fas fa-list-ol', 'التشخيص التفريقي', altHtml);
 
 
@@ -502,16 +549,22 @@ function renderReport(data) {
     createCard('fas fa-pills', 'خطة العلاج المتكاملة', `${trHtml}
         <div style="margin-top:15px; text-align:left;">
             <a href="${tr.link}" target="_blank" style="background:#3949ab; color:#fff; padding:8px 15px; border-radius:6px; text-decoration:none; font-size:0.9rem; display:inline-flex; align-items:center; gap:5px;">
-                <i class="fas fa-external-link-alt"></i>  اضغط هنا 
+                <i class="fas fa-external-link-alt"></i> اضغط هنا 
             </a>
         </div>
+    `);
+
+    // 7. الوقاية
+    createCard('fas fa-shield-alt', 'الوقاية', `
+        <div style="white-space: pre-line; line-height:1.8; color:#333;">${data["7_prevention"].steps}</div>
+        <div class="source-box"><a href="${data["7_prevention"].link}" target="_blank">🔗 اضغط هنا </a></div>
     `);
 }
 
 
 function createCard(icon, title, content, isOpen = false) {
     const card = document.createElement('div');
-    card.className = 'diagnosis-card'; 
+    card.className = 'diagnosis-card';
     if (isOpen) card.classList.add('active');
 
     card.innerHTML = `
@@ -521,7 +574,7 @@ function createCard(icon, title, content, isOpen = false) {
         </div>
         <div class="card-body">${content}</div>
     `;
-    
+
     card.querySelector('.card-header').addEventListener('click', () => {
         card.classList.toggle('active');
     });
