@@ -137,9 +137,57 @@
 
                     <div class="case-history-box">
                         <h3 class="history-title">
-                            <i class="fas fa-clipboard-list"></i> سجل الحالة والأعراض الملاحظة (اختر أولاً لفتح رفع
-                            الصور):
+                            <i class="fas fa-clipboard-list"></i> 1. بيانات القطيع وسجل الحالة (مطلوب لفتح الصور):
                         </h3>
+
+                        <div class="inputs-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+
+                            <div class="form-group">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;">نوع
+                                    القطيع:</label>
+                                <select id="flock-type" class="form-select input-mandatory"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                    <option value="" selected disabled>-- اختر النوع --</option>
+                                    <option value="Grandparents">الجدات (Grandparents)</option>
+                                    <option value="Parents">الأمهات (Parents)</option>
+                                    <option value="Broilers">اللاحم/التسمين (Broilers)</option>
+                                    <option value="Layers">البياض (Layers)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;">العمر
+                                    التقريبي:</label>
+                                <select id="flock-age" class="form-select input-mandatory"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                    <option value="" selected disabled>-- اختر العمر --</option>
+                                    <option value="1-7 days">1 - 7 أيام</option>
+                                    <option value="1-3 weeks">1 - 3 أسابيع</option>
+                                    <option value="4-7 weeks">4 - 7 أسابيع</option>
+                                    <option value="8-16 weeks">8 - 16 أسبوع</option>
+                                    <option value="17-25 weeks">17 - 25 أسبوع</option>
+                                    <option value="+26 weeks">أكثر من 26 أسبوع</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;">عدد
+                                    القطيع الكلي:</label>
+                                <input type="number" id="flock-count" class="input-mandatory" placeholder="مثال: 5000"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;">عدد/نسبة
+                                    النفوق:</label>
+                                <input type="text" id="mortality-rate" class="input-mandatory"
+                                    placeholder="مثال: 50 طير أو 1%"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+                        </div>
+
+                        <h4 style="font-size:1rem; color:#555; margin-bottom:10px;">اختر الأعراض الملاحظة:</h4>
                         <div class="symptoms-grid" id="symptomsChecklist">
                         </div>
                     </div>
