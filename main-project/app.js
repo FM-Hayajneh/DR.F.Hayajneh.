@@ -199,6 +199,7 @@ async function getAnalysisFromGPT() {
     3. **Diagnosis Reasoning:** - If Chicken exists: Analyze Head, Balance, Movement, Eyes, Feathers.
         - If Feces exists: Analyze Color, Consistency.
         - **If Organ exists (${organType}):** You MUST provide a professional pathological description. Describe: Enlargement, Color (pale/dark), Lesions (spots, necrosis, hemorrhages), Texture, and Fibrin presence. Use specific terms like "Multifocal necrosis", "Petechial hemorrhage", "Enlarged/Hepatomegaly".
+        - **If "Eggs" is selected:** Analyze egg shell quality, shape, texture (rough/sandy), thickness, and color abnormalities.
     4. **Diagnosis Summary:** Synthesize all findings into a conclusion.
     
     Produce a JSON report strictly following this structure in ARABIC:
@@ -433,3 +434,4 @@ function createCard(icon, title, content, isOpen = false) {
 
     bitar.appendChild(card);
 }
+
