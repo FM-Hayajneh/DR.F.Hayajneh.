@@ -51,6 +51,52 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* --- تعديلات جديدة لدعم الصور المتعددة والأعضاء الديناميكية --- */
+        .multi-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 8px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .mini-preview-thumb {
+            width: 100%;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid #4361ee;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .organ-card {
+            position: relative;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .remove-organ-btn {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background: #e63946;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 
@@ -127,8 +173,6 @@
         <div class="container">
             <div class="content-wrapper">
 
-
-
                 <section class="upload-section">
                     <div class="section-title">
                         <h2>رفع الصور للتشخيص</h2>
@@ -202,10 +246,10 @@
                             <div class="upload-area" id="area-chicken"
                                 onclick="document.getElementById('input-chicken').click()">
                                 <div class="upload-icon"><i class="fas fa-camera"></i></div>
-                                <p>اضغط لرفع صورة الدجاجة</p>
-                                <img id="preview-chicken" class="mini-preview" style="display:none;">
+                                <p>اضغط لرفع صورة أو أكثر</p>
+                                <div id="preview-chicken-container" class="multi-preview-grid"></div>
                             </div>
-                            <input type="file" id="input-chicken" accept="image/*" hidden>
+                            <input type="file" id="input-chicken" accept="image/*" multiple hidden>
                         </div>
 
                         <div class="upload-card">
@@ -216,50 +260,19 @@
                             <div class="upload-area" id="area-feces"
                                 onclick="document.getElementById('input-feces').click()">
                                 <div class="upload-icon"><i class="fas fa-flask"></i></div>
-                                <p>اضغط لرفع الصورة </p>
-                                <img id="preview-feces" class="mini-preview" style="display:none;">
+                                <p>اضغط لرفع صور إضافية</p>
+                                <div id="preview-feces-container" class="multi-preview-grid"></div>
                             </div>
-                            <input type="file" id="input-feces" accept="image/*" hidden>
+                            <input type="file" id="input-feces" accept="image/*" multiple hidden>
                         </div>
 
-                        <div class="upload-card">
-                            <div class="upload-header">
-                                <i class="fas fa-heartbeat"></i>
-                                <h3>صور الأعضاء (تشريح)</h3>
+                        <div id="dynamic-organs-area" style="display: contents;">
                             </div>
 
-                            <div class="organ-select-wrapper" style="padding: 0 20px 10px;">
-                                <label for="organ-type"
-                                    style="display:block; margin-bottom:5px; font-size:0.9rem; color:#666;">
-                                    يجب تحديد العضو لفتح الكاميرا:
-                                </label>
-                                <select id="organ-type" class="form-select" style="border: 2px solid #e0e0e0;">
-                                    <option value="" disabled selected>-- اختر العضو (إجباري) --</option>
-                                    <option value="Intestine">الأمعاء (Intestine)</option>
-                                    <option value="Proventriculus">الغدة المعدية (Proventriculus)</option>
-                                    <option value="Gizzard">القونصة (Gizzard)</option>
-                                    <option value="Liver">الكبد (Liver)</option>
-                                    <option value="Spleen">الطحال (Spleen)</option>
-                                    <option value="Kidney">الكلى (Kidney)</option>
-                                    <option value="Heart_Pericardium">القلب وغشاء التامور</option>
-                                    <option value="Lungs">الرئتان (Lungs)</option>
-                                    <option value="Air_Sacs">الأكياس الهوائية (Air Sacs)</option>
-                                    <option value="Trachea">القصبة الهوائية (Trachea)</option>
-                                    <option value="Bursa">جراب فابريشيوس (Bursa)</option>
-                                    <option value="Thymus">الغدة الزعترية (Thymus)</option>
-                                    <option value="Brain">الدماغ (Brain)</option>
-                                    <option value="Ovary_Oviduct">المبيض وقناة البيض</option>
-                                    <option value="Joints_Tendons">المفاصل والأوتار</option>
-                                    <option value="Eggs">البيض (Eggs)</option>
-                                </select>
-                            </div>
-
-                            <div class="upload-area disabled-upload" id="area-organ">
-                                <div class="upload-icon"><i class="fas fa-microscope"></i></div>
-                                <p id="organ-placeholder-text">يرجى اختيار العضو أولاً</p>
-                                <img id="preview-organ" class="mini-preview" style="display:none;">
-                            </div>
-                            <input type="file" id="input-organ" accept="image/*" hidden disabled>
+                        <div style="grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 10px;">
+                            <button type="button" class="btn btn-outline" id="addOrganBtn" style="border-style: dashed; width: 100%; max-width: 400px;">
+                                <i class="fas fa-plus"></i> إضافة عضو تشريحي آخر
+                            </button>
                         </div>
 
                     </div>
@@ -343,4 +356,3 @@
 </body>
 
 </html>
-
