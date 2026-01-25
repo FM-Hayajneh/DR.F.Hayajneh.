@@ -30,7 +30,7 @@
 
         .triple-upload-grid {
             display: grid;
-            /* تم التأكد من صحة التنسيق لضمان ظهور الأعمدة بشكل صحيح في التقرير */
+            /* تم تصحيح الخطأ المطبعي هنا لضمان عمل الـ PDF بشكل صحيح */
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
@@ -47,7 +47,9 @@
         }
 
         @keyframes spin {
-            100% { transform: rotate(360deg); }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* تنسيقات الصور المتعددة */
@@ -103,8 +105,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -120,15 +129,9 @@
                     <span id="txt-logo">المحلل البيطري</span>
                 </a>
 
-                <div style="display: flex; align-items: center;">
-                    <button class="btn btn-outline" id="langBtn" style="font-family: inherit; font-weight: bold; margin-left: 10px;">
-                        English
-                    </button>
-                    
-                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
-                        <span></span><span></span><span></span>
-                    </button>
-                </div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
+                    <span></span><span></span><span></span>
+                </button>
 
                 <nav id="mainNav" class="main-nav">
                     <ul>
@@ -137,6 +140,10 @@
                 </nav>
 
                 <div class="auth-buttons">
+                    <button class="btn btn-outline" id="langBtn" style="font-family: inherit; font-weight: bold;">
+                        English
+                    </button>
+
                     <button class="btn btn-outline" onclick="location.reload()">
                         <i class="fas fa-redo"></i>
                         <span id="txt-new">تحليل جديد</span>
@@ -151,6 +158,7 @@
             <div class="hero-content">
                 <h1 class="hero-title animate-fade-in">
                     <span id="txt-hero-title">أ.د. فراس الهياجنة</span>
+
                 </h1>
                 <p class="hero-description animate-fade-in-delay-1" id="txt-hero-desc">
                     نظام متقدم يعتمد على نظام متقدم لتشخيص أمراض الدواجن بدقة وكتابة تقارير طبية شاملة.
@@ -173,9 +181,12 @@
             </div>
         </div>
         <div class="hero-bg-animation">
-            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;"><i class="fas fa-dove"></i></div>
-            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 1s;"><i class="fas fa-brain"></i></div>
-            <div class="floating-icon" style="left: 20%; top: 70%; animation-delay: 2s;"><i class="fas fa-file-medical-alt"></i></div>
+            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;"><i class="fas fa-dove"></i>
+            </div>
+            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 1s;"><i class="fas fa-brain"></i>
+            </div>
+            <div class="floating-icon" style="left: 20%; top: 70%; animation-delay: 2s;"><i
+                    class="fas fa-file-medical-alt"></i></div>
         </div>
     </section>
 
@@ -191,13 +202,17 @@
 
                     <div class="case-history-box">
                         <h3 class="history-title">
-                            <i class="fas fa-clipboard-list"></i> <span id="txt-flock-title">1. بيانات القطيع وسجل الحالة (مطلوب لفتح الصور):</span>
+                            <i class="fas fa-clipboard-list"></i> <span id="txt-flock-title">1. بيانات القطيع وسجل
+                                الحالة (مطلوب لفتح الصور):</span>
                         </h3>
 
-                        <div class="inputs-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+                        <div class="inputs-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
                             <div class="form-group">
-                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;" id="lbl-type">نوع القطيع:</label>
-                                <select id="flock-type" class="form-select input-mandatory" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;"
+                                    id="lbl-type">نوع القطيع:</label>
+                                <select id="flock-type" class="form-select input-mandatory"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
                                     <option value="" selected disabled id="opt-type-def">-- اختر النوع --</option>
                                     <option value="Grandparents" id="opt-type-1">الجدات (Grandparents)</option>
                                     <option value="Parents" id="opt-type-2">الأمهات (Parents)</option>
@@ -207,8 +222,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;" id="lbl-age">العمر التقريبي:</label>
-                                <select id="flock-age" class="form-select input-mandatory" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;"
+                                    id="lbl-age">العمر التقريبي:</label>
+                                <select id="flock-age" class="form-select input-mandatory"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
                                     <option value="" selected disabled id="opt-age-def">-- اختر العمر --</option>
                                     <option value="1-7 days">1 - 7 days</option>
                                     <option value="1-3 weeks">1 - 3 weeks</option>
@@ -220,17 +237,23 @@
                             </div>
 
                             <div class="form-group">
-                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;" id="lbl-count">عدد القطيع الكلي:</label>
-                                <input type="number" id="flock-count" class="input-mandatory" placeholder="مثال: 5000" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;"
+                                    id="lbl-count">عدد القطيع الكلي:</label>
+                                <input type="number" id="flock-count" class="input-mandatory" placeholder="مثال: 5000"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
                             </div>
 
                             <div class="form-group">
-                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;" id="lbl-mortality">عدد/نسبة النفوق:</label>
-                                <input type="text" id="mortality-rate" class="input-mandatory" placeholder="مثال: 50 طير أو 1%" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                                <label style="display:block; font-size:0.9rem; color:#555; margin-bottom:5px;"
+                                    id="lbl-mortality">عدد/نسبة النفوق:</label>
+                                <input type="text" id="mortality-rate" class="input-mandatory"
+                                    placeholder="مثال: 50 طير أو 1%"
+                                    style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
                             </div>
                         </div>
 
-                        <h4 style="font-size:1rem; color:#555; margin-bottom:10px;" id="txt-symptoms-title">اختر الأعراض الملاحظة:</h4>
+                        <h4 style="font-size:1rem; color:#555; margin-bottom:10px;" id="txt-symptoms-title">اختر الأعراض
+                            الملاحظة:</h4>
                         <div class="symptoms-grid" id="symptomsChecklist"></div>
                     </div>
 
@@ -240,7 +263,8 @@
                                 <i class="fas fa-dove"></i>
                                 <h3 id="txt-card-chicken">صور الدجاجة (المظهر)</h3>
                             </div>
-                            <div class="upload-area" id="area-chicken" onclick="document.getElementById('input-chicken').click()">
+                            <div class="upload-area" id="area-chicken"
+                                onclick="document.getElementById('input-chicken').click()">
                                 <div class="upload-icon"><i class="fas fa-camera"></i></div>
                                 <p id="txt-hint-chicken">اضغط لرفع صورة أو أكثر</p>
                                 <div id="preview-chicken-container" class="multi-preview-grid"></div>
@@ -253,7 +277,8 @@
                                 <i class="fas fa-vial"></i>
                                 <h3 id="txt-card-other">اضافة صور أخرى</h3>
                             </div>
-                            <div class="upload-area" id="area-feces" onclick="document.getElementById('input-feces').click()">
+                            <div class="upload-area" id="area-feces"
+                                onclick="document.getElementById('input-feces').click()">
                                 <div class="upload-icon"><i class="fas fa-flask"></i></div>
                                 <p id="txt-hint-other">اضغط لرفع صور إضافية</p>
                                 <div id="preview-feces-container" class="multi-preview-grid"></div>
@@ -264,7 +289,8 @@
                         <div id="dynamic-organs-area" style="display: contents;"></div>
 
                         <div style="grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 10px;">
-                            <button type="button" class="btn btn-outline" id="addOrganBtn" style="border-style: dashed; width: 100%; max-width: 400px;">
+                            <button type="button" class="btn btn-outline" id="addOrganBtn"
+                                style="border-style: dashed; width: 100%; max-width: 400px;">
                                 <i class="fas fa-plus"></i> <span id="txt-btn-add-organ">إضافة عضو تشريحي آخر</span>
                             </button>
                         </div>
@@ -299,10 +325,13 @@
                 </section>
 
                 <section class="info-section">
-                    <h3 class="info-title"><i class="fas fa-info-circle"></i> <span id="txt-note-title">تنويه هام</span></h3>
+                    <h3 class="info-title"><i class="fas fa-info-circle"></i> <span id="txt-note-title">تنويه هام</span>
+                    </h3>
                     <ul class="info-list">
-                        <li><span class="bullet">•</span> <span id="txt-note-1">هذا النظام يستخدم أحدث تقنيات التكنولوجيا (Generative GPT).</span></li>
-                        <li><span class="bullet">•</span> <span id="txt-note-2">النتائج هي للاسترشاد الطبي ومطلوب مراجعتها من قبل مختص.</span></li>
+                        <li><span class="bullet">•</span> <span id="txt-note-1">هذا النظام يستخدم أحدث تقنيات
+                                التكنولوجيا (Generative GPT).</span></li>
+                        <li><span class="bullet">•</span> <span id="txt-note-2">النتائج هي للاسترشاد الطبي ومطلوب
+                                مراجعتها من قبل مختص.</span></li>
                     </ul>
                 </section>
 
