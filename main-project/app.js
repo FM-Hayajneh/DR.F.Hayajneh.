@@ -1,5 +1,6 @@
 /**
- * app.js - نسخة شاملة (تعدد صور + أعضاء ديناميكية + تعدد لغات)
+ * app.js - النسخة النهائية الشاملة
+ * الميزات: تعدد لغات (AR/EN) + رفع متعدد للصور + أعضاء ديناميكية + ذكاء اصطناعي
  */
 
 const analyzeBtn = document.getElementById('analyzeBtn');
@@ -17,16 +18,16 @@ const flockAgeInput = document.getElementById('flock-age');
 const flockCountInput = document.getElementById('flock-count');
 const mortalityInput = document.getElementById('mortality-rate');
 
-// --- إعدادات اللغة ---
+// 1. إعدادات اللغة والقاموس
 let currentLang = 'ar';
 
 const dictionary = {
     ar: {
-        logo: "المحلل البيطري الذكي", nav: "التحليل البيطري", new: "تحليل جديد",
+        logo: "المحلل البيطري الذكي", nav: "التحليل البيطري", new: "تشخيص جديد",
         heroT: "المحلل البيطري", heroD: "نظام متقدم يعتمد على الذكاء الاصطناعي لتشخيص أمراض الدواجن بدقة.",
         stat1: "نقاط تشخيصية", stat2: "دقة التحليل %", stat3: "ساعة خدمة",
-        uploadT: "رفع الصور للتشخيص", uploadD: "قم باختيار الأعراض أولاً، ثم ارفع الصور المتاحة لزيادة الدقة",
-        flockT: "1. بيانات القطيع (إجباري):",
+        uploadT: "بيانات الحالة والصور", uploadD: "يرجى تعبئة البيانات ورفع كافة الصور المتاحة للدقة القصوى",
+        flockT: "1. بيانات القطيع (إجباري لفتح الرفع):",
         lblType: "نوع القطيع:", lblAge: "العمر التقريبي:", lblCount: "العدد الكلي:", lblMort: "نسبة النفوق:",
         phCount: "مثال: 5000", phMort: "مثال: 50 طير أو 1%",
         sympT: "اختر الأعراض الملاحظة:",
@@ -34,62 +35,85 @@ const dictionary = {
         cardOth: "صور إضافية / فضلات", hintOth: "اضغط لرفع صور إضافية",
         btnAdd: "إضافة عضو تشريحي آخر",
         btnAnlz: "بدء التحليل الشامل",
-        loadT: "جاري تحليل الصور...", loadD: "يقوم الذكاء الاصطناعي الآن بربط الأعراض بالصور المرفقة",
+        loadT: "جاري تحليل جميع الصور...", loadD: "يقوم الذكاء الاصطناعي الآن بربط الأعراض بالصور المرفقة",
         resT: "التقرير الطبي المفصل",
-        noteT: "تنويه هام", note1: "هذا النظام يستخدم تقنيات الذكاء الاصطناعي.", note2: "النتائج للاسترشاد الطبي فقط.",
+        noteT: "تنويه هام", note1: "هذا النظام يستخدم أحدث تقنيات التكنولوجيا (Generative GPT).", 
+        note2: "النتائج هي للاسترشاد الطبي ومطلوب مراجعتها من قبل مختص.",
         foot: "المحلل البيطري",
         // القوائم
-        optTypeDef: "-- اختر النوع --", optType1: "الجدات", optType2: "الأمهات", optType3: "اللاحم", optType4: "البياض",
+        optTypeDef: "-- اختر النوع --", optType1: "الجدات (Grandparents)", optType2: "الأمهات (Parents)", 
+        optType3: "اللاحم (Broilers)", optType4: "البياض (Layers)",
         optAgeDef: "-- اختر العمر --",
         // الأعضاء
         organHead: "عضو تشريحي إضافي", organLbl: "اختر العضو:", organHint: "اختر العضو ثم اضغط للرفع",
         organList: {
-            "Liver": "الكبد", "Intestine": "الأمعاء", "Heart": "القلب", 
-            "Gizzard": "القونصة", "Lungs": "الرئتان", "Kidney": "الكلى", 
-            "Spleen": "الطحال", "Brain": "الدماغ", "Other": "آخر"
-        }
+            "Liver": "الكبد (Liver)", "Intestine": "الأمعاء (Intestine)", "Heart": "القلب (Heart)", 
+            "Gizzard": "القونصة (Gizzard)", "Lungs": "الرئتان (Lungs)", "Kidney": "الكلى (Kidney)", 
+            "Spleen": "الطحال (Spleen)", "Brain": "الدماغ (Brain)", "Other": "عضو آخر"
+        },
+        // نتائج التقرير
+        rType: "النوع:", rReason: "سبب التصنيف:", 
+        rEst: "التقديرات الحيوية", rWeight: "الوزن التقديري", rAge: "العمر التقديري",
+        rDiag: "التشخيص الأساسي", rConf: "نسبة الاشتباه:", rSum: "💡 الخلاصة والربط بين الأعراض:", rRef: "المراجع:",
+        rAlt: "التشخيص التفريقي (احتمالات أخرى)",
+        rTreat: "خطة العلاج المتكاملة", rIso: "العزل:", rMeds: "الدواء:", rEnv: "البيئة:", rRead: "اقرأ المزيد",
+        rPrev: "الوقاية"
     },
     en: {
-        logo: "Smart Vet Analyst", nav: "Veterinary Analysis", new: "New Analysis",
+        logo: "Smart Vet Analyst", nav: "Veterinary Analysis", new: "New Diagnosis",
         heroT: "Veterinary Analyst", heroD: "Advanced AI system for accurate poultry disease diagnosis.",
         stat1: "Diagnostic Points", stat2: "Accuracy %", stat3: "Hours Service",
-        uploadT: "Upload Images", uploadD: "Select symptoms first, then upload available images for accuracy",
-        flockT: "1. Flock Data (Required):",
+        uploadT: "Case Data & Images", uploadD: "Please fill in the data and upload all available images for maximum accuracy",
+        flockT: "1. Flock Data (Required to unlock upload):",
         lblType: "Flock Type:", lblAge: "Approx. Age:", lblCount: "Total Count:", lblMort: "Mortality Rate:",
-        phCount: "e.g: 5000", phMort: "e.g: 50 birds or 1%",
+        phCount: "e.g: 5000", phMort: "e.g: 1%",
         sympT: "Observed Symptoms:",
         cardChk: "Chicken Images (Appearance)", hintChk: "Click to upload images",
         cardOth: "Extra Images / Feces", hintOth: "Click to upload extra images",
         btnAdd: "Add Another Organ",
-        btnAnlz: "Start Full Analysis",
-        loadT: "Analyzing Images...", loadD: "AI is correlating symptoms with uploaded images now",
+        btnAnlz: "Start Comprehensive Analysis",
+        loadT: "Analyzing all images...", loadD: "AI is now correlating symptoms with the uploaded images",
         resT: "Detailed Medical Report",
-        noteT: "Important Disclaimer", note1: "This system uses Generative AI technology.", note2: "Results are for guidance only.",
+        noteT: "Important Disclaimer", note1: "This system uses Generative AI technology.", 
+        note2: "Results are for guidance only and require professional review.",
         foot: "Vet Analyst",
         // Options
-        optTypeDef: "-- Select Type --", optType1: "Grandparents", optType2: "Parents", optType3: "Broilers", optType4: "Layers",
+        optTypeDef: "-- Select Type --", optType1: "Grandparents", optType2: "Parents", 
+        optType3: "Broilers", optType4: "Layers",
         optAgeDef: "-- Select Age --",
         // Organs
-        organHead: "Additional Organ", organLbl: "Select Organ:", organHint: "Select organ then click to upload",
+        organHead: "Additional Anatomical Organ", organLbl: "Select Organ:", organHint: "Select organ then click to upload",
         organList: {
             "Liver": "Liver", "Intestine": "Intestine", "Heart": "Heart", 
             "Gizzard": "Gizzard", "Lungs": "Lungs", "Kidney": "Kidney", 
             "Spleen": "Spleen", "Brain": "Brain", "Other": "Other"
-        }
+        },
+        // Report Results
+        rType: "Type:", rReason: "Reasoning:", 
+        rEst: "Vital Estimates", rWeight: "Est. Weight", rAge: "Est. Age",
+        rDiag: "Primary Diagnosis", rConf: "Confidence:", rSum: "💡 Summary & Correlation:", rRef: "References:",
+        rAlt: "Differential Diagnosis (Alternatives)",
+        rTreat: "Treatment Protocol", rIso: "Isolation:", rMeds: "Meds:", rEnv: "Env:", rRead: "Read More",
+        rPrev: "Prevention"
     }
 };
 
 const symptomsAr = [
-    "فقدان الشهية", "نقص استهلاك العلف", "الهزال", "انتفاش الريش",
-    "زيادة النفوق", "صعوبة التنفس", "إفرازات", "تورم الوجه", 
-    "إسهال", "اتساخ المجمع", "بطء النمو", "عرج/عدم اتزان", 
-    "التواء الرقبة", "انخفاض البيض", "بيض مشوه"
+    "فقدان الشهية", "نقص استهلاك العلف والماء", "الهزال ونقص الوزن", "انتفاش الريش",
+    "زيادة النفوق أو نفوق مفاجئ", "صعوبة أو تسارع التنفس", "التنفس بفم مفتوح",
+    "إفرازات أنفية أو عينية", "تورم الوجه أو الجيوب الأنفية", "شحوب أو ازرقاق العرف والدلايات",
+    "إسهال (مائي، أخضر، أبيض، دموي)", "اتساخ منطقة المجمع", "بطء النمو وسوء التحويل الغذائي",
+    "عدم الاتزان أو العرج", "شلل الأجنحة أو الأرجل", "التواء الرقبة أو أعراض عصبية",
+    "تورم المفاصل أو صعوبة الحركة", "انخفاض أو توقف إنتاج البيض", "بيض مشوه أو رقيق القشرة"
 ];
+
 const symptomsEn = [
-    "Loss of appetite", "Reduced feed intake", "Emaciation", "Ruffled feathers",
-    "Increased mortality", "Respiratory distress", "Discharge", "Swollen face",
-    "Diarrhea", "Dirty vent", "Stunted growth", "Lameness",
-    "Twisted neck", "Drop in eggs", "Deformed eggs"
+    "Loss of appetite", "Reduced feed/water intake", "Emaciation/Weight loss", "Ruffled feathers",
+    "Increased/Sudden mortality", "Difficulty/Rapid breathing", "Gasping/Open mouth breathing",
+    "Nasal/Ocular discharge", "Swollen face/sinuses", "Pale or cyanotic comb/wattles",
+    "Diarrhea (watery, green, white, bloody)", "Dirty vent area", "Stunted growth/Poor FCR",
+    "Imbalance/Lameness", "Paralysis of wings/legs", "Twisted neck (Torticollis)/Nervous signs",
+    "Swollen joints/Reluctance to move", "Drop/Cessation in egg production", "Deformed/Thin-shelled eggs"
 ];
 
 // دالة تغيير اللغة
@@ -101,64 +125,72 @@ function switchLanguage() {
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLang;
     
-    // 2. تغيير النصوص الثابتة
-    document.getElementById('txt-logo').textContent = t.logo;
-    document.getElementById('txt-nav').textContent = t.nav;
-    document.getElementById('txt-new').textContent = t.new;
+    // 2. تحديث النصوص الثابتة في الصفحة
+    updateElementText('txt-logo', t.logo);
+    updateElementText('txt-nav', t.nav);
+    updateElementText('txt-new', t.new);
     langBtn.textContent = currentLang === 'ar' ? 'English' : 'عربي';
     
-    document.getElementById('txt-hero-title').textContent = t.heroT;
-    document.getElementById('txt-hero-desc').textContent = t.heroD;
-    document.getElementById('txt-stat-1').textContent = t.stat1;
-    document.getElementById('txt-stat-2').textContent = t.stat2;
-    document.getElementById('txt-stat-3').textContent = t.stat3;
+    updateElementText('txt-hero-title', t.heroT);
+    updateElementText('txt-hero-desc', t.heroD);
+    updateElementText('txt-stat-1', t.stat1);
+    updateElementText('txt-stat-2', t.stat2);
+    updateElementText('txt-stat-3', t.stat3);
     
-    document.getElementById('txt-upload-title').textContent = t.uploadT;
-    document.getElementById('txt-upload-desc').textContent = t.uploadD;
-    document.getElementById('txt-flock-title').textContent = t.flockT;
+    updateElementText('txt-upload-title', t.uploadT);
+    updateElementText('txt-upload-desc', t.uploadD);
+    updateElementText('txt-flock-title', t.flockT);
     
-    document.getElementById('lbl-type').textContent = t.lblType;
-    document.getElementById('lbl-age').textContent = t.lblAge;
-    document.getElementById('lbl-count').textContent = t.lblCount;
-    document.getElementById('lbl-mortality').textContent = t.lblMort;
+    updateElementText('lbl-type', t.lblType);
+    updateElementText('lbl-age', t.lblAge);
+    updateElementText('lbl-count', t.lblCount);
+    updateElementText('lbl-mortality', t.lblMort);
     
-    document.getElementById('flock-count').placeholder = t.phCount;
-    document.getElementById('mortality-rate').placeholder = t.phMort;
+    // تحديث الـ Placeholders
+    if(flockCountInput) flockCountInput.placeholder = t.phCount;
+    if(mortalityInput) mortalityInput.placeholder = t.phMort;
     
-    // خيارات القوائم
-    document.getElementById('opt-type-def').textContent = t.optTypeDef;
-    document.getElementById('opt-type-1').textContent = t.optType1;
-    document.getElementById('opt-type-2').textContent = t.optType2;
-    document.getElementById('opt-type-3').textContent = t.optType3;
-    document.getElementById('opt-type-4').textContent = t.optType4;
-    document.getElementById('opt-age-def').textContent = t.optAgeDef;
+    // تحديث خيارات القائمة المنسدلة
+    updateElementText('opt-type-def', t.optTypeDef);
+    updateElementText('opt-type-1', t.optType1);
+    updateElementText('opt-type-2', t.optType2);
+    updateElementText('opt-type-3', t.optType3);
+    updateElementText('opt-type-4', t.optType4);
+    updateElementText('opt-age-def', t.optAgeDef);
 
-    document.getElementById('txt-symptoms-title').textContent = t.sympT;
-    document.getElementById('txt-card-chicken').textContent = t.cardChk;
-    document.getElementById('txt-hint-chicken').textContent = t.hintChk;
-    document.getElementById('txt-card-other').textContent = t.cardOth;
-    document.getElementById('txt-hint-other').textContent = t.hintOth;
-    document.getElementById('txt-btn-add-organ').textContent = t.btnAdd;
-    document.getElementById('txt-btn-analyze').textContent = t.btnAnlz;
+    updateElementText('txt-symptoms-title', t.sympT);
+    updateElementText('txt-card-chicken', t.cardChk);
+    updateElementText('txt-hint-chicken', t.hintChk);
+    updateElementText('txt-card-other', t.cardOth);
+    updateElementText('txt-hint-other', t.hintOth);
+    updateElementText('txt-btn-add-organ', t.btnAdd);
+    updateElementText('txt-btn-analyze', t.btnAnlz);
     
-    document.getElementById('txt-loading-title').textContent = t.loadT;
-    document.getElementById('txt-loading-desc').textContent = t.loadD;
-    document.getElementById('txt-res-title').textContent = t.resT;
-    document.getElementById('txt-note-title').textContent = t.noteT;
-    document.getElementById('txt-note-1').textContent = t.note1;
-    document.getElementById('txt-note-2').textContent = t.note2;
-    document.getElementById('txt-footer').textContent = t.foot;
+    updateElementText('txt-loading-title', t.loadT);
+    updateElementText('txt-loading-desc', t.loadD);
+    updateElementText('txt-res-title', t.resT);
+    updateElementText('txt-note-title', t.noteT);
+    updateElementText('txt-note-1', t.note1);
+    updateElementText('txt-note-2', t.note2);
+    updateElementText('txt-footer', t.foot);
 
-    // إعادة رسم الأعراض
+    // إعادة بناء قائمة الأعراض باللغة الجديدة
     renderSymptoms();
     
-    // تحديث نصوص كروت الأعضاء الديناميكية الموجودة حالياً (إن وجدت)
+    // تحديث نصوص بطاقات الأعضاء الديناميكية (إذا كانت موجودة)
     updateDynamicOrgansText(t);
+}
+
+function updateElementText(id, text) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
 }
 
 function renderSymptoms() {
     const container = document.getElementById('symptomsChecklist');
+    if(!container) return;
     container.innerHTML = '';
+    
     const list = currentLang === 'ar' ? symptomsAr : symptomsEn;
     
     list.forEach(symptom => {
@@ -168,7 +200,7 @@ function renderSymptoms() {
         container.appendChild(label);
     });
     
-    // إعادة تفعيل listeners
+    // إعادة تفعيل مراقبة الاختيار
     const checkboxes = document.querySelectorAll('.symptom-checkbox');
     checkboxes.forEach(box => {
         box.addEventListener('change', () => {
@@ -179,29 +211,50 @@ function renderSymptoms() {
 }
 
 function updateDynamicOrgansText(t) {
+    // تحديث النصوص في البطاقات المنشأة ديناميكياً
     document.querySelectorAll('.organ-card').forEach(card => {
-        card.querySelector('h3').textContent = t.organHead;
-        card.querySelector('label').textContent = t.organLbl;
-        card.querySelector('.upload-area p').textContent = t.organHint;
-        // تحديث خيارات القائمة داخل الكرت صعب قليلاً لذا سنكتفي بالعناوين الرئيسية
+        const title = card.querySelector('h3');
+        if(title) title.textContent = t.organHead;
+        
+        const label = card.querySelector('label');
+        if(label) label.textContent = t.organLbl;
+        
+        const p = card.querySelector('.upload-area p');
+        if(p) p.textContent = t.organHint;
+        
+        // تحديث خيار "الافتراضي" في القائمة المنسدلة فقط
+        const select = card.querySelector('select');
+        if(select && select.options.length > 0) {
+            select.options[0].text = t.optOrganDefault || "-- القائمة --";
+        }
     });
 }
 
-langBtn.addEventListener('click', switchLanguage);
-renderSymptoms(); // تشغيل أولي
+// تفعيل زر اللغة
+if(langBtn) {
+    langBtn.addEventListener('click', switchLanguage);
+}
+
+// تشغيل أولي للأعراض
+renderSymptoms();
 
 // --- نهاية إعدادات اللغة ---
 
-// مصفوفات الصور
-let caseImages = { chicken: [], feces: [], organs: [] };
+
+// --- منطق الصور المتعددة والمصفوفات ---
+let caseImages = {
+    chicken: [],
+    feces: [],
+    organs: [] 
+};
 let selectedSymptoms = [];
 
 function checkAllInputsAndToggle() {
     const hasSymptoms = selectedSymptoms.length > 0;
-    const isTypeFilled = flockTypeInput.value !== "";
-    const isAgeFilled = flockAgeInput.value !== "";
-    const isCountFilled = flockCountInput.value.trim() !== "";
-    const isMortalityFilled = mortalityInput.value.trim() !== "";
+    const isTypeFilled = flockTypeInput && flockTypeInput.value !== "";
+    const isAgeFilled = flockAgeInput && flockAgeInput.value !== "";
+    const isCountFilled = flockCountInput && flockCountInput.value.trim() !== "";
+    const isMortalityFilled = mortalityInput && mortalityInput.value.trim() !== "";
 
     if (hasSymptoms && isTypeFilled && isAgeFilled && isCountFilled && isMortalityFilled) {
         if(uploadGrid) {
@@ -221,6 +274,7 @@ if(flockAgeInput) flockAgeInput.addEventListener('change', checkAllInputsAndTogg
 if(flockCountInput) flockCountInput.addEventListener('input', checkAllInputsAndToggle);
 if(mortalityInput) mortalityInput.addEventListener('input', checkAllInputsAndToggle);
 
+// دالة الرفع المتعدد (للبطاقات الثابتة)
 function handleMultiUpload(inputId, containerId, type) {
     const input = document.getElementById(inputId);
     const container = document.getElementById(containerId);
@@ -231,16 +285,22 @@ function handleMultiUpload(inputId, containerId, type) {
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = function (event) {
+                // إضافة للمصفوفة
                 caseImages[type].push(event.target.result);
+                
+                // عرض الصورة
                 const img = document.createElement('img');
                 img.src = event.target.result;
                 img.className = 'mini-preview-thumb';
                 container.appendChild(img);
+                
+                // إخفاء الأيقونة
                 const parentArea = container.parentElement;
                 const icon = parentArea.querySelector('.upload-icon');
                 const text = parentArea.querySelector('p');
                 if(icon) icon.style.display = 'none';
                 if(text) text.style.display = 'none';
+
                 checkAnalyzeButton();
             };
             reader.readAsDataURL(file);
@@ -251,14 +311,14 @@ function handleMultiUpload(inputId, containerId, type) {
 handleMultiUpload('input-chicken', 'preview-chicken-container', 'chicken');
 handleMultiUpload('input-feces', 'preview-feces-container', 'feces');
 
-// إنشاء كرت عضو ديناميكي مع دعم اللغة
+// إنشاء كرت عضو ديناميكي (يدعم اللغة)
 function createNewOrganCard() {
     const t = dictionary[currentLang];
     const card = document.createElement('div');
     card.className = 'upload-card organ-card';
     
-    // بناء قائمة الخيارات بناء على اللغة
-    let optionsHtml = `<option value="" disabled selected>-- ${t.optTypeDef} --</option>`;
+    // بناء خيارات القائمة حسب اللغة
+    let optionsHtml = `<option value="" disabled selected>${t.optTypeDef || "-- القائمة --"}</option>`;
     for (const [key, value] of Object.entries(t.organList)) {
         optionsHtml += `<option value="${key}">${value}</option>`;
     }
@@ -290,7 +350,9 @@ if(addOrganBtn) {
     addOrganBtn.addEventListener('click', createNewOrganCard);
 }
 
+// دوال مساعدة عامة (Window Scope)
 window.triggerOrganInput = function(area) {
+    const t = dictionary[currentLang];
     const select = area.parentElement.querySelector('.organ-selector');
     if (select.value === "") {
         alert(currentLang === 'ar' ? "يرجى اختيار العضو أولاً" : "Please select organ first");
@@ -315,10 +377,12 @@ window.processOrganFile = function(input) {
             img.src = e.target.result;
             img.className = 'mini-preview-thumb';
             container.appendChild(img);
+            
             const icon = area.querySelector('.upload-icon');
             const text = area.querySelector('p');
             if(icon) icon.style.display = 'none';
             if(text) text.style.display = 'none';
+            
             checkAnalyzeButton();
         };
         reader.readAsDataURL(file);
@@ -359,53 +423,107 @@ if (analyzeBtn) {
     });
 }
 
-// دالة الإرسال مع دعم اللغة في الـ Prompt
+// --- دالة المخاطبة الذكية (Prompt Logic) ---
 async function getAnalysisFromGPT() {
+    
     const flockType = flockTypeInput ? flockTypeInput.value : "Unknown";
     const flockAge = flockAgeInput ? flockAgeInput.value : "Unknown";
     const flockCount = flockCountInput ? flockCountInput.value : "Unknown";
     const mortality = mortalityInput ? mortalityInput.value : "Unknown";
-    const historyText = selectedSymptoms.length > 0 ? selectedSymptoms.join(", ") : "None";
+    const historyText = selectedSymptoms.length > 0 ? selectedSymptoms.join(", ") : "No specific history provided";
 
-    // تحديد لغة الرد المطلوبة من GPT بناءً على اللغة الحالية
+    // تحديد لغة الإخراج
     const outputLangInstruction = currentLang === 'ar' 
-        ? "Produce a JSON report strictly following this structure in ARABIC:" 
-        : "Produce a JSON report strictly following this structure in ENGLISH:";
+        ? "IMPORTANT: Provide all string values inside the JSON in ARABIC language." 
+        : "IMPORTANT: Provide all string values inside the JSON in ENGLISH language.";
 
+    // النص التوجيهي (Prompt)
     const promptText = `
-    Act as a highly experienced Poultry Veterinarian. Analyze attached images as ONE single case.
-    Context: Flock: ${flockType}, Age: ${flockAge}, Size: ${flockCount}, Mortality: ${mortality}. Symptoms: ${historyText}.
+    Act as a highly experienced Poultry Veterinarian and Pathologist. Analyze the attached images combined as a SINGLE CASE.
+    
+    Context Provided:
+    - **Flock Data:** Type: ${flockType}, Age: ${flockAge}, Size: ${flockCount}, Mortality: ${mortality}
+    - **Clinical History / Symptoms Reported:** ${historyText}
+    
+    Images Provided:
+    The user has uploaded multiple images. Analyze them in this priority:
+    1. **Organs (Pathology):** Look for Necrosis, Enlargement, Color changes (Pale/Dark), Fibrin, Hemorrhages.
+    2. **External Appearance:** Look for Head position (Torticollis), Eyes, Feathers, Legs (Dehydration).
+    3. **Feces:** Look for Color (Green/White/Bloody) and Consistency.
+    
+    CRITICAL INSTRUCTIONS:
+    1. **Correlate findings:** Connect the external symptoms with the internal organ lesions.
+    2. **Probability:** MUST be a percentage (e.g., '95%').
+    3. **Precision:** Use medical terms (e.g., "Petechial hemorrhage", "Hepatomegaly") then explain them simply.
     
     ${outputLangInstruction}
+    
+    Produce a JSON report strictly following this structure:
     {
-        "1_chicken_type": { "value": "String", "reason": "String" },
-        "2_weight_est": { "value": "String" },
-        "3_age_est": { "value": "String" },
+        "1_chicken_type": { 
+            "title": "Type", 
+            "value": "String (e.g. Broiler, Layer)", 
+            "reason": "String (Why you think so based on morphology)" 
+        },
+        "2_weight_est": { "title": "Weight", "value": "String" },
+        "3_age_est": { "title": "Age", "value": "String" },
         "4_primary_diagnosis": { 
-            "disease_name_ar": "String",
-            "disease_name_en": "String",
+            "disease_name_ar": "String (Arabic Name)",
+            "disease_name_en": "String (English Name)",
             "probability": "String (e.g. '95%')",
-            "diagnosis_summary": "String",
+            "diagnosis_summary": "String (Comprehensive summary linking symptoms to pathology)",
             "detailed_reasoning": {
-                "head": "String", "balance": "String", "movement": "String", "eyes": "String", 
-                "feathers": "String", "feces_color": "String", "feces_consistency": "String", 
-                "feces_context": "String", "organ_analysis": "String"
+                "head": "String (Describe head position/comb color)",
+                "balance": "String (Describe posture/neuro signs)",
+                "movement": "String (Describe lameness/paralysis)",
+                "eyes": "String (Describe shape/discharge)",
+                "feathers": "String (Describe quality/ruffled)",
+                "feces_color": "String (Or 'N/A')",
+                "feces_consistency": "String (Or 'N/A')",
+                "feces_context": "String",
+                "organ_analysis": "String (CRITICAL: Detailed description of lesions in uploaded organs. If no organs, say 'N/A')"
             },
-            "links": ["search_url"]
+            "links": ["https://www.google.com/search?q=DISEASE_NAME_EN+symptoms+poultry"]
         },
         "5_alternatives": { 
-            "diseases": [ { "name_ar": "String", "name_en": "String", "prob": "String", "reason": "String", "link": "url" } ] 
+            "diseases": [ 
+                {
+                    "name_ar": "String", 
+                    "name_en": "String", 
+                    "prob": "String", 
+                    "reason": "String (Why is this a differential diagnosis?)", 
+                    "link": "https://www.google.com/search?q=DISEASE_NAME_EN+poultry"
+                } 
+            ] 
         },
-        "6_treatment": { "isolation": "String", "feed_water": "String", "medication": "String", "environment": "String", "tests": "String", "link": "url" },
-        "7_prevention": { "steps": "String", "link": "url" }
+        "6_treatment": { 
+            "isolation": "String (Biosecurity measures)", 
+            "feed_water": "String (Supplements/Diet)", 
+            "medication": "String (Scientific drug names & active ingredients)", 
+            "environment": "String (Temp/Ventilation adjustments)", 
+            "tests": "String (PCR/ELISA recommendations)", 
+            "link": "https://www.google.com/search?q=DISEASE_NAME_EN+treatment+protocol+poultry" 
+        },
+        "7_prevention": { "steps": "String (Future vaccination/hygiene)", "link": "String" }
     }
+    If images are unrelated to poultry, return error JSON.
     `;
 
     let contentArray = [{ type: "text", text: promptText }];
-    caseImages.chicken.forEach(img => contentArray.push({ type: "image_url", image_url: { url: img } }));
-    caseImages.feces.forEach(img => contentArray.push({ type: "image_url", image_url: { url: img } }));
+
+    // إضافة جميع صور الدجاج
+    caseImages.chicken.forEach(img => {
+        contentArray.push({ type: "image_url", image_url: { url: img } });
+    });
+
+    // إضافة جميع صور الفضلات
+    caseImages.feces.forEach(img => {
+        contentArray.push({ type: "image_url", image_url: { url: img } });
+    });
+
+    // إضافة جميع صور الأعضاء مع التسمية
     caseImages.organs.forEach(item => {
-        contentArray.push({ type: "text", text: `Organ: ${item.type}` });
+        contentArray.push({ type: "text", text: `High resolution image of organ: ${item.type}` });
         contentArray.push({ type: "image_url", image_url: { url: item.data } });
     });
 
@@ -421,12 +539,12 @@ async function getAnalysisFromGPT() {
     });
 
     const data = await response.json();
-    if (!data.choices) throw new Error("No response");
+    if (!data.choices || !data.choices[0].message.content) throw new Error("No response from AI");
     return JSON.parse(data.choices[0].message.content);
 }
 
 function renderReport(data) {
-    const t = dictionary[currentLang]; // استخدام القاموس لعناوين النتائج
+    const t = dictionary[currentLang];
     bitar.innerHTML = ''; 
 
     if (data.error) {
@@ -434,63 +552,135 @@ function renderReport(data) {
         return;
     }
 
-    createCard('fas fa-dna', t.flockT ? "Chicken Type" : "نوع الدجاجة", `
-        <div style="padding: 10px;">
-            <div style="display:flex; justify-content:space-between; background:#f9f9f9; padding:10px; border-radius:8px;">
-                <strong>${currentLang==='ar'?'النوع:':'Type:'}</strong>
-                <span style="color:#e65100; font-weight:bold;">${data["1_chicken_type"].value}</span>
+    createCard('fas fa-dna', t.rType ? t.rType : 'النوع:', `
+        <div style="padding: 5px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap: 10px; margin-bottom: 10px;">
+                <strong style="font-size:1.2rem; color:#333;">${currentLang === 'ar' ? 'النوع:' : 'Type:'}</strong> 
+                <span style="font-size:1.2rem; font-weight:800; color:#e65100; background:#fff3e0; padding:2px 10px; border-radius:4px;">
+                    ${data["1_chicken_type"].value}
+                </span>
             </div>
-            <p style="margin-top:10px;">${data["1_chicken_type"].reason}</p>
-        </div>
-    `);
-
-    createCard('fas fa-weight-hanging', currentLang==='ar'?'التقديرات':'Estimates', `
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1; text-align:center; padding:10px; background:#f1f8e9; border-radius:10px;">
-                <div style="font-weight:bold;">${data["2_weight_est"].value}</div>
-                <small>${currentLang==='ar'?'الوزن':'Weight'}</small>
-            </div>
-            <div style="flex:1; text-align:center; padding:10px; background:#e3f2fd; border-radius:10px;">
-                <div style="font-weight:bold;">${data["3_age_est"].value}</div>
-                <small>${currentLang==='ar'?'العمر':'Age'}</small>
+            <div class="reason-highlight" style="background:#f9f9f9; padding:10px; border-radius:8px; border-right:4px solid #e65100;">
+                <strong style="color:#555;">${t.rReason}</strong> 
+                <span style="color:#666;">${data["1_chicken_type"].reason}</span>
             </div>
         </div>
     `);
 
-    const diag = data["4_primary_diagnosis"];
-    const r = diag.detailed_reasoning;
+    createCard('fas fa-weight-hanging', t.rEst, `
+        <div style="display:flex; gap:15px; flex-wrap: wrap;">
+            <div style="flex:1; background:#f9f9f9; border-radius:10px; padding:12px; display:flex; align-items:center; gap:15px; border:1px solid #eee;">
+                <div style="background:#e8eaf6; color:#3949ab; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-weight"></i></div>
+                <div><div style="font-weight:800; font-size:1.2rem; color:#333; margin-bottom:4px;">${data["2_weight_est"].value}</div><div style="font-size:0.9rem; color:#666; font-weight:bold;">${t.rWeight}</div></div>
+            </div>
+            <div style="flex:1; background:#f9f9f9; border-radius:10px; padding:12px; display:flex; align-items:center; gap:15px; border:1px solid #eee;">
+                <div style="background:#e8eaf6; color:#3949ab; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-clock"></i></div>
+                <div><div style="font-weight:800; font-size:1.2rem; color:#333; margin-bottom:4px;">${data["3_age_est"].value}</div><div style="font-size:0.9rem; color:#666; font-weight:bold;">${t.rAge}</div></div>
+            </div>
+        </div>
+    `);
+
+   let linksHtml = data["4_primary_diagnosis"].links.map(l => `<a href="${l}" target="_blank" style="color:#b78a00; text-decoration:underline;">${t.rRead}</a>`).join(' | ');
+    const reasons = data["4_primary_diagnosis"].detailed_reasoning;
     
-    // عرض التفاصيل بناء على اللغة
-    let detailsHtml = `<div style="margin-top:15px; background:#f8f9fa; padding:10px; border-radius:8px;">`;
-    if(currentLang === 'ar') {
-        detailsHtml += `<div><strong>الرأس:</strong> ${r.head}</div><div><strong>التوازن:</strong> ${r.balance}</div>`;
-        if(r.organ_analysis) detailsHtml += `<div style="color:red; margin-top:5px;"><strong>التشريح:</strong> ${r.organ_analysis}</div>`;
-    } else {
-        detailsHtml += `<div><strong>Head:</strong> ${r.head}</div><div><strong>Balance:</strong> ${r.balance}</div>`;
-        if(r.organ_analysis) detailsHtml += `<div style="color:red; margin-top:5px;"><strong>Anatomy:</strong> ${r.organ_analysis}</div>`;
+    let fecesHtml = '';
+    if (reasons.feces_color && reasons.feces_color !== 'N/A') {
+        fecesHtml = `
+        <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:15px;">
+            <h6 style="color:#795548; margin-bottom:10px; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-flask"></i> ${currentLang === 'ar' ? 'تحليل البراز' : 'Feces Analysis'}:</h6>
+            <div style="margin-bottom:5px; display:flex; gap:5px;"><strong style="color:#5d4037; min-width:90px;"> ${t.res_color || 'اللون'}:</strong> <span style="color:#555;">${reasons.feces_color}</span></div>
+            <div style="margin-bottom:5px; display:flex; gap:5px;"><strong style="color:#5d4037; min-width:90px;"> ${t.res_consist || 'القوام'}:</strong> <span style="color:#555;">${reasons.feces_consistency}</span></div>
+        </div>`;
     }
-    detailsHtml += `</div>`;
 
-    createCard('fas fa-user-md', currentLang==='ar'?'التشخيص الأساسي':'Primary Diagnosis', `
-        <div style="padding: 10px;">
-            <h2 style="color:#c62828; margin:0;">${currentLang === 'ar' ? diag.disease_name_ar : diag.disease_name_en}</h2>
-            <h4 style="color:#777;">${currentLang === 'ar' ? diag.disease_name_en : diag.disease_name_ar}</h4>
-            <div style="margin:10px 0;"><strong>${currentLang==='ar'?'الاشتباه:':'Confidence:'}</strong> ${diag.probability}</div>
-            ${detailsHtml}
-            <div style="margin-top:10px; background:#e3f2fd; padding:10px; border-radius:6px;">${diag.diagnosis_summary}</div>
+    let organHtml = '';
+    if (reasons.organ_analysis && reasons.organ_analysis !== 'N/A') {
+        organHtml = `
+        <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:15px;">
+            <h6 style="color:#c62828; margin-bottom:10px; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-heartbeat"></i> ${t.res_organ_analysis || 'الفحص التشريحي'}:</h6>
+            <div style="color:#444; font-size:0.95rem; line-height:1.6; padding-right:10px;">${reasons.organ_analysis}</div>
+        </div>`;
+    }
+
+    const symptomsHtml = `
+        <div style="margin-top:15px; background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; padding:15px;">
+            <h5 style="color:#3949ab; margin-bottom:10px; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-dove"></i> ${t.res_ext_analysis || 'التحليل الظاهري'}:</h5>
+            <div style="padding-right:10px;">
+                <div style="margin-bottom:8px; display:flex; gap:5px;"><strong style="color:#333; min-width:90px;"> ${t.res_head || 'الرأس'}:</strong> <span style="color:#555;">${reasons.head}</span></div>
+                <div style="margin-bottom:8px; display:flex; gap:5px;"><strong style="color:#333; min-width:90px;"> ${t.res_bal || 'التوازن'}:</strong> <span style="color:#555;">${reasons.balance}</span></div>
+                <div style="margin-bottom:8px; display:flex; gap:5px;"><strong style="color:#333; min-width:90px;"> ${t.res_move || 'الحركة'}:</strong> <span style="color:#555;">${reasons.movement}</span></div>
+                <div style="display:flex; gap:5px;"><strong style="color:#333; min-width:90px;"> ${t.res_feathers || 'الريش'}:</strong> <span style="color:#555;">${reasons.feathers}</span></div>
+            </div>
+            ${fecesHtml}
+            ${organHtml}
+        </div>
+    `;
+
+    createCard('fas fa-user-md', t.rDiag, `
+        <div style="padding: 5px;">
+            <div style="margin-bottom: 15px;">
+                <h3 style="color:#c62828; margin:0 0 5px 0; font-weight:900; font-size:1.6rem; line-height:1.2;">${currentLang==='ar'?data["4_primary_diagnosis"].disease_name_ar:data["4_primary_diagnosis"].disease_name_en}</h3>
+                <h4 style="color:#555; font-weight:bold; margin:0; font-family:sans-serif; font-size:1.1rem;">${currentLang==='ar'?data["4_primary_diagnosis"].disease_name_en:data["4_primary_diagnosis"].disease_name_ar}</h4>
+            </div>
+            <div style="display:flex; align-items:center; gap: 10px; margin-bottom: 20px;">
+                <strong style="color:#333; font-size:1.1rem;">${t.rConf}</strong> 
+                <span style="background:#ffebee; color:#c62828; padding:4px 15px; border-radius:6px; font-weight:900; font-size:1.3rem; border:1px solid #ffcdd2;">${data["4_primary_diagnosis"].probability}</span>
+            </div>
+            ${symptomsHtml}
+            <div style="margin-top:15px; background:#e3f2fd; padding:12px; border-radius:6px; border-right:4px solid #2196f3;">
+                <strong style="color:#0d47a1; display:block; margin-bottom:5px;">${t.rSum}</strong>
+                <p style="margin:0; color:#333; font-size:0.95rem; line-height:1.6;">${data["4_primary_diagnosis"].diagnosis_summary}</p>
+            </div>
+            <div class="source-box"><i class="fas fa-link"></i> ${t.rRef} ${linksHtml}</div>
         </div>
     `, true);
 
+   let altHtml = '<ul style="list-style:none; padding:0; margin:0;">';
+    data["5_alternatives"].diseases.forEach(d => {
+        altHtml += `
+        <li style="background:#fff; border:1px solid #eee; border-radius:12px; padding:15px; margin-bottom:12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: transform 0.2s;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div><div style="font-weight:900; font-size:1.1rem; color:#2c3e50;">${currentLang==='ar'?d.name_ar:d.name_en}</div><div style="font-size:0.85rem; color:#95a5a6; font-family:sans-serif;">${currentLang==='ar'?d.name_en:d.name_ar}</div></div>
+                <span style="background:#e3f2fd; color:#1565c0; padding:5px 12px; border-radius:8px; font-weight:900; font-size:1rem; border:1px solid #bbdefb;">${d.prob}</span>
+            </div>
+            <div style="font-size:0.95rem; color:#555; margin-bottom:10px; padding-right:10px; border-right:3px solid #cfd8dc; line-height:1.5;"><strong style="color:#455a64;">${currentLang==='ar'?'السبب:':'Reason:'}</strong> ${d.reason}</div>
+            <div style="text-align:left;"><a href="${d.link}" target="_blank" style="font-size:0.85rem; color:#3949ab; text-decoration:none; font-weight:bold; display:inline-flex; align-items:center; gap:5px;"><i class="fas fa-external-link-alt"></i> ${t.rRead}</a></div>
+        </li>`;
+    });
+    altHtml += '</ul>';
+    createCard('fas fa-list-ol', t.rAlt, altHtml);
+
     const tr = data["6_treatment"];
-    createCard('fas fa-pills', currentLang==='ar'?'العلاج':'Treatment', `
-        <div><strong>${currentLang==='ar'?'العزل:':'Isolation:'}</strong> ${tr.isolation}</div>
-        <div style="margin-top:5px;"><strong>${currentLang==='ar'?'الدواء:':'Meds:'}</strong> ${tr.medication}</div>
+    const trHtml = `
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background:#fff; border:1px solid #ffcdd2; border-radius:10px; padding:15px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;"><div style="background:#ffebee; color:#c62828; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem;"><i class="fas fa-door-closed"></i></div><strong style="font-size:1.1rem; color:#c62828;">${t.rIso}</strong></div>
+                <div style="color:#555; line-height:1.6; padding-right:46px;">${tr.isolation}</div>
+            </div>
+            <div style="background:#fdf2ff; border:1px solid #e1bee7; border-radius:10px; padding:15px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;"><div style="background:#fff; color:#8e24aa; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; border:1px solid #ba68c8;"><i class="fas fa-prescription-bottle-alt"></i></div><strong style="font-size:1.1rem; color:#7b1fa2;">${t.rMeds}</strong></div>
+                <div style="color:#333; font-weight:bold; line-height:1.6; padding-right:46px;">${tr.medication}</div>
+            </div>
+            <div style="background:#fff; border:1px solid #c8e6c9; border-radius:10px; padding:15px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;"><div style="background:#e8f5e9; color:#2e7d32; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem;"><i class="fas fa-temperature-high"></i></div><strong style="font-size:1.1rem; color:#2e7d32;">${t.rEnv}</strong></div>
+                <div style="color:#555; line-height:1.6; padding-right:46px;">${tr.environment}</div>
+            </div>
+        </div>
+    `;
+
+    createCard('fas fa-pills', t.rTreat, `${trHtml}<div style="margin-top:15px; text-align:left;"><a href="${tr.link}" target="_blank" style="background:#3949ab; color:#fff; padding:8px 15px; border-radius:6px; text-decoration:none; font-size:0.9rem; display:inline-flex; align-items:center; gap:5px;"><i class="fas fa-external-link-alt"></i> ${t.rRead} </a></div>`);
+
+   createCard('fas fa-shield-alt', t.rPrev, `
+        <div style="white-space: pre-line; line-height:1.8; color:#333;">${data["7_prevention"].steps}</div>
+        <div class="source-box"><a href="${data["7_prevention"].link}" target="_blank">🔗 ${t.rRead} </a></div>
     `);
 }
 
 function createCard(icon, title, content, isOpen = false) {
     const card = document.createElement('div');
-    card.className = `diagnosis-card ${isOpen ? 'active' : ''}`;
+    card.className = 'diagnosis-card'; 
+    if (isOpen) card.classList.add('active');
+
     card.innerHTML = `
         <div class="card-header">
             <div class="card-title"><i class="${icon}"></i> ${title}</div>
@@ -498,6 +688,10 @@ function createCard(icon, title, content, isOpen = false) {
         </div>
         <div class="card-body">${content}</div>
     `;
-    card.querySelector('.card-header').addEventListener('click', () => card.classList.toggle('active'));
+    
+    card.querySelector('.card-header').addEventListener('click', () => {
+        card.classList.toggle('active');
+    });
+
     bitar.appendChild(card);
 }
