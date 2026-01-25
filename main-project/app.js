@@ -1,6 +1,5 @@
 /**
- * app.js - النسخة النهائية الشاملة
- * الميزات: تعدد لغات (AR/EN) + رفع متعدد للصور + أعضاء ديناميكية + ذكاء اصطناعي
+ * app.js - النسخة النهائية الشاملة (مع تقرير PDF الاحترافي)
  */
 
 const analyzeBtn = document.getElementById('analyzeBtn');
@@ -11,6 +10,8 @@ const uploadGrid = document.getElementById('uploadGrid');
 const addOrganBtn = document.getElementById('addOrganBtn');
 const dynamicOrgansArea = document.getElementById('dynamic-organs-area');
 const langBtn = document.getElementById('langBtn');
+// --- إضافة زر الـ PDF ---
+const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
 // المدخلات
 const flockTypeInput = document.getElementById('flock-type');
@@ -23,8 +24,8 @@ let currentLang = 'ar';
 
 const dictionary = {
     ar: {
-        logo: "المحلل البيطري الذكي", nav: "التحليل البيطري", new: "تشخيص جديد",
-        heroT: "المحلل البيطري", heroD: "نظام متقدم يعتمد على الذكاء الاصطناعي لتشخيص أمراض الدواجن بدقة.",
+        logo: "أ.د. فراس الهياجنة", nav: "التحليل البيطري", new: "تشخيص جديد",
+        heroT: "أ.د. فراس الهياجنة", heroD: "نظام متقدم يعتمد على الذكاء الاصطناعي لتشخيص أمراض الدواجن بدقة.",
         stat1: "نقاط تشخيصية", stat2: "دقة التحليل %", stat3: "ساعة خدمة",
         uploadT: "بيانات الحالة والصور", uploadD: "يرجى تعبئة البيانات ورفع كافة الصور المتاحة للدقة القصوى",
         flockT: "1. بيانات القطيع (إجباري لفتح الرفع):",
@@ -57,11 +58,14 @@ const dictionary = {
         rDiag: "التشخيص الأساسي", rConf: "نسبة الاشتباه:", rSum: "💡 الخلاصة والربط بين الأعراض:", rRef: "المراجع:",
         rAlt: "التشخيص التفريقي (احتمالات أخرى)",
         rTreat: "خطة العلاج المتكاملة", rIso: "العزل:", rMeds: "الدواء:", rEnv: "البيئة:", rRead: "اقرأ المزيد",
-        rPrev: "الوقاية"
+        rPrev: "الوقاية",
+        // --- نصوص PDF الجديدة ---
+        pdfTitle: "تقرير تشخيص بيطري", pdfDate: "تاريخ التقرير:", pdfInputs: "ملخص بيانات الحالة",
+        pdfFooter: "تم إصدار هذا التقرير آلياً بواسطة نظام المحلل البيطري الذكي"
     },
     en: {
-        logo: "Smart Vet Analyst", nav: "Veterinary Analysis", new: "New Diagnosis",
-        heroT: "Veterinary Analyst", heroD: "Advanced AI system for accurate poultry disease diagnosis.",
+        logo: "POULTRY VET", nav: "Veterinary Analysis", new: "New Diagnosis",
+        heroT: "PR FM HAYAJNEH", heroD: "Advanced system for accurate poultry disease diagnosis.",
         stat1: "Diagnostic Points", stat2: "Accuracy %", stat3: "Hours Service",
         uploadT: "Case Data & Images", uploadD: "Please fill in the data and upload all available images for maximum accuracy",
         flockT: "1. Flock Data (Required to unlock upload):",
@@ -94,7 +98,10 @@ const dictionary = {
         rDiag: "Primary Diagnosis", rConf: "Confidence:", rSum: "💡 Summary & Correlation:", rRef: "References:",
         rAlt: "Differential Diagnosis (Alternatives)",
         rTreat: "Treatment Protocol", rIso: "Isolation:", rMeds: "Meds:", rEnv: "Env:", rRead: "Read More",
-        rPrev: "Prevention"
+        rPrev: "Prevention",
+        // --- PDF Texts ---
+        pdfTitle: "Veterinary Diagnosis Report", pdfDate: "Report Date:", pdfInputs: "Case Data Summary",
+        pdfFooter: "Generated automatically by Smart Vet Analyst System"
     }
 };
 
@@ -121,11 +128,10 @@ function switchLanguage() {
     currentLang = currentLang === 'ar' ? 'en' : 'ar';
     const t = dictionary[currentLang];
     
-    // 1. تغيير الاتجاه
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLang;
     
-    // 2. تحديث النصوص الثابتة في الصفحة
+    // تحديث النصوص
     updateElementText('txt-logo', t.logo);
     updateElementText('txt-nav', t.nav);
     updateElementText('txt-new', t.new);
@@ -146,11 +152,9 @@ function switchLanguage() {
     updateElementText('lbl-count', t.lblCount);
     updateElementText('lbl-mortality', t.lblMort);
     
-    // تحديث الـ Placeholders
     if(flockCountInput) flockCountInput.placeholder = t.phCount;
     if(mortalityInput) mortalityInput.placeholder = t.phMort;
     
-    // تحديث خيارات القائمة المنسدلة
     updateElementText('opt-type-def', t.optTypeDef);
     updateElementText('opt-type-1', t.optType1);
     updateElementText('opt-type-2', t.optType2);
@@ -174,10 +178,7 @@ function switchLanguage() {
     updateElementText('txt-note-2', t.note2);
     updateElementText('txt-footer', t.foot);
 
-    // إعادة بناء قائمة الأعراض باللغة الجديدة
     renderSymptoms();
-    
-    // تحديث نصوص بطاقات الأعضاء الديناميكية (إذا كانت موجودة)
     updateDynamicOrgansText(t);
 }
 
@@ -200,7 +201,6 @@ function renderSymptoms() {
         container.appendChild(label);
     });
     
-    // إعادة تفعيل مراقبة الاختيار
     const checkboxes = document.querySelectorAll('.symptom-checkbox');
     checkboxes.forEach(box => {
         box.addEventListener('change', () => {
@@ -211,7 +211,6 @@ function renderSymptoms() {
 }
 
 function updateDynamicOrgansText(t) {
-    // تحديث النصوص في البطاقات المنشأة ديناميكياً
     document.querySelectorAll('.organ-card').forEach(card => {
         const title = card.querySelector('h3');
         if(title) title.textContent = t.organHead;
@@ -222,7 +221,6 @@ function updateDynamicOrgansText(t) {
         const p = card.querySelector('.upload-area p');
         if(p) p.textContent = t.organHint;
         
-        // تحديث خيار "الافتراضي" في القائمة المنسدلة فقط
         const select = card.querySelector('select');
         if(select && select.options.length > 0) {
             select.options[0].text = t.optOrganDefault || "-- القائمة --";
@@ -230,16 +228,11 @@ function updateDynamicOrgansText(t) {
     });
 }
 
-// تفعيل زر اللغة
 if(langBtn) {
     langBtn.addEventListener('click', switchLanguage);
 }
 
-// تشغيل أولي للأعراض
 renderSymptoms();
-
-// --- نهاية إعدادات اللغة ---
-
 
 // --- منطق الصور المتعددة والمصفوفات ---
 let caseImages = {
@@ -274,7 +267,6 @@ if(flockAgeInput) flockAgeInput.addEventListener('change', checkAllInputsAndTogg
 if(flockCountInput) flockCountInput.addEventListener('input', checkAllInputsAndToggle);
 if(mortalityInput) mortalityInput.addEventListener('input', checkAllInputsAndToggle);
 
-// دالة الرفع المتعدد (للبطاقات الثابتة)
 function handleMultiUpload(inputId, containerId, type) {
     const input = document.getElementById(inputId);
     const container = document.getElementById(containerId);
@@ -285,22 +277,16 @@ function handleMultiUpload(inputId, containerId, type) {
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = function (event) {
-                // إضافة للمصفوفة
                 caseImages[type].push(event.target.result);
-                
-                // عرض الصورة
                 const img = document.createElement('img');
                 img.src = event.target.result;
                 img.className = 'mini-preview-thumb';
                 container.appendChild(img);
-                
-                // إخفاء الأيقونة
                 const parentArea = container.parentElement;
                 const icon = parentArea.querySelector('.upload-icon');
                 const text = parentArea.querySelector('p');
                 if(icon) icon.style.display = 'none';
                 if(text) text.style.display = 'none';
-
                 checkAnalyzeButton();
             };
             reader.readAsDataURL(file);
@@ -311,13 +297,11 @@ function handleMultiUpload(inputId, containerId, type) {
 handleMultiUpload('input-chicken', 'preview-chicken-container', 'chicken');
 handleMultiUpload('input-feces', 'preview-feces-container', 'feces');
 
-// إنشاء كرت عضو ديناميكي (يدعم اللغة)
 function createNewOrganCard() {
     const t = dictionary[currentLang];
     const card = document.createElement('div');
     card.className = 'upload-card organ-card';
     
-    // بناء خيارات القائمة حسب اللغة
     let optionsHtml = `<option value="" disabled selected>${t.optTypeDef || "-- القائمة --"}</option>`;
     for (const [key, value] of Object.entries(t.organList)) {
         optionsHtml += `<option value="${key}">${value}</option>`;
@@ -350,7 +334,6 @@ if(addOrganBtn) {
     addOrganBtn.addEventListener('click', createNewOrganCard);
 }
 
-// دوال مساعدة عامة (Window Scope)
 window.triggerOrganInput = function(area) {
     const t = dictionary[currentLang];
     const select = area.parentElement.querySelector('.organ-selector');
@@ -377,12 +360,10 @@ window.processOrganFile = function(input) {
             img.src = e.target.result;
             img.className = 'mini-preview-thumb';
             container.appendChild(img);
-            
             const icon = area.querySelector('.upload-icon');
             const text = area.querySelector('p');
             if(icon) icon.style.display = 'none';
             if(text) text.style.display = 'none';
-            
             checkAnalyzeButton();
         };
         reader.readAsDataURL(file);
@@ -423,21 +404,89 @@ if (analyzeBtn) {
     });
 }
 
-// --- دالة المخاطبة الذكية (Prompt Logic) ---
-async function getAnalysisFromGPT() {
+// --- دالة إنشاء PDF الاحترافي (جديدة) ---
+if (downloadPdfBtn) {
+    downloadPdfBtn.addEventListener('click', generateProfessionalPDF);
+}
+
+function generateProfessionalPDF() {
+    const t = dictionary[currentLang];
     
+    // 1. إنشاء حاوية التقرير
+    const element = document.createElement('div');
+    element.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
+    element.style.fontFamily = "'Tajawal', sans-serif";
+    element.style.padding = '20px';
+    element.style.background = '#ffffff';
+    element.style.color = '#333';
+
+    // 2. التاريخ
+    const date = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+
+    // 3. قسم بيانات القطيع (ملخص)
+    const flockInfo = `
+        <div style="background:#f8f9fa; border:1px solid #eee; border-radius:10px; padding:15px; margin-bottom:20px;">
+            <h3 style="color:#4361ee; margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">${t.pdfInputs}</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.9rem;">
+                <div><strong>${t.lblType}</strong> ${flockTypeInput.value}</div>
+                <div><strong>${t.lblAge}</strong> ${flockAgeInput.value}</div>
+                <div><strong>${t.lblCount}</strong> ${flockCountInput.value}</div>
+                <div><strong>${t.lblMort}</strong> ${mortalityInput.value}</div>
+            </div>
+            <div style="margin-top:10px;">
+                <strong>${t.sympT}</strong> <br>
+                <span style="color:#666; font-size:0.85rem;">${selectedSymptoms.join(', ')}</span>
+            </div>
+        </div>
+    `;
+
+    // 4. بناء الهيكل الكامل
+    // ننسخ محتوى النتائج (#bitar) ولكننا نعدله قليلاً ليكون مناسباً للطباعة
+    // ملاحظة: html2pdf سيأخذ الستايل الموجود، لذا البطاقات ستظهر كما هي في الموقع وهذا جيد
+    const resultsContent = document.getElementById('bitar').innerHTML;
+
+    element.innerHTML = `
+        <div style="text-align:center; margin-bottom:30px; border-bottom: 2px solid #4361ee; padding-bottom: 20px;">
+            <h1 style="color:#4361ee; margin:0;">${t.logo}</h1>
+            <h3 style="color:#666; margin:5px;">${t.pdfTitle}</h3>
+            <p style="font-size:0.9rem; color:#888;">${t.pdfDate} ${date}</p>
+        </div>
+        
+        ${flockInfo}
+        
+        <div class="pdf-content-body">
+            ${resultsContent}
+        </div>
+
+        <div style="text-align:center; margin-top:50px; border-top:1px solid #eee; padding-top:15px; font-size:0.8rem; color:#888;">
+            ${t.pdfFooter}
+        </div>
+    `;
+
+    // 5. إعدادات التحويل
+    const opt = {
+        margin:       [0.5, 0.5],
+        filename:     `Vet-Report-${Date.now()}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 6. التنفيذ
+    html2pdf().set(opt).from(element).save();
+}
+
+async function getAnalysisFromGPT() {
     const flockType = flockTypeInput ? flockTypeInput.value : "Unknown";
     const flockAge = flockAgeInput ? flockAgeInput.value : "Unknown";
     const flockCount = flockCountInput ? flockCountInput.value : "Unknown";
     const mortality = mortalityInput ? mortalityInput.value : "Unknown";
     const historyText = selectedSymptoms.length > 0 ? selectedSymptoms.join(", ") : "No specific history provided";
 
-    // تحديد لغة الإخراج
     const outputLangInstruction = currentLang === 'ar' 
         ? "IMPORTANT: Provide all string values inside the JSON in ARABIC language." 
         : "IMPORTANT: Provide all string values inside the JSON in ENGLISH language.";
 
-    // النص التوجيهي (Prompt)
     const promptText = `
     Act as a highly experienced Poultry Veterinarian and Pathologist. Analyze the attached images combined as a SINGLE CASE.
     
@@ -460,68 +509,40 @@ async function getAnalysisFromGPT() {
     
     Produce a JSON report strictly following this structure:
     {
-        "1_chicken_type": { 
-            "title": "Type", 
-            "value": "String (e.g. Broiler, Layer)", 
-            "reason": "String (Why you think so based on morphology)" 
-        },
+        "1_chicken_type": { "title": "Type", "value": "String", "reason": "String" },
         "2_weight_est": { "title": "Weight", "value": "String" },
         "3_age_est": { "title": "Age", "value": "String" },
         "4_primary_diagnosis": { 
             "disease_name_ar": "String (Arabic Name)",
             "disease_name_en": "String (English Name)",
             "probability": "String (e.g. '95%')",
-            "diagnosis_summary": "String (Comprehensive summary linking symptoms to pathology)",
+            "diagnosis_summary": "String",
             "detailed_reasoning": {
-                "head": "String (Describe head position/comb color)",
-                "balance": "String (Describe posture/neuro signs)",
-                "movement": "String (Describe lameness/paralysis)",
-                "eyes": "String (Describe shape/discharge)",
-                "feathers": "String (Describe quality/ruffled)",
-                "feces_color": "String (Or 'N/A')",
-                "feces_consistency": "String (Or 'N/A')",
-                "feces_context": "String",
-                "organ_analysis": "String (CRITICAL: Detailed description of lesions in uploaded organs. If no organs, say 'N/A')"
+                "head": "String", "balance": "String", "movement": "String", "eyes": "String",
+                "feathers": "String", "feces_color": "String", "feces_consistency": "String",
+                "feces_context": "String", "organ_analysis": "String"
             },
             "links": ["https://www.google.com/search?q=DISEASE_NAME_EN+symptoms+poultry"]
         },
         "5_alternatives": { 
-            "diseases": [ 
-                {
-                    "name_ar": "String", 
-                    "name_en": "String", 
-                    "prob": "String", 
-                    "reason": "String (Why is this a differential diagnosis?)", 
-                    "link": "https://www.google.com/search?q=DISEASE_NAME_EN+poultry"
-                } 
-            ] 
+            "diseases": [ { "name_ar": "String", "name_en": "String", "prob": "String", "reason": "String", "link": "https://www.google.com/search?q=DISEASE_NAME_EN+poultry" } ] 
         },
-        "6_treatment": { 
-            "isolation": "String (Biosecurity measures)", 
-            "feed_water": "String (Supplements/Diet)", 
-            "medication": "String (Scientific drug names & active ingredients)", 
-            "environment": "String (Temp/Ventilation adjustments)", 
-            "tests": "String (PCR/ELISA recommendations)", 
-            "link": "https://www.google.com/search?q=DISEASE_NAME_EN+treatment+protocol+poultry" 
-        },
-        "7_prevention": { "steps": "String (Future vaccination/hygiene)", "link": "String" }
+        "6_treatment": { "isolation": "String", "feed_water": "String", "medication": "String", "environment": "String", "tests": "String", "link": "https://www.google.com/search?q=DISEASE_NAME_EN+treatment+protocol+poultry" },
+        "7_prevention": { "steps": "String", "link": "String" }
     }
     If images are unrelated to poultry, return error JSON.
     `;
 
     let contentArray = [{ type: "text", text: promptText }];
 
-    // إضافة جميع صور الدجاج
     caseImages.chicken.forEach(img => {
         contentArray.push({ type: "image_url", image_url: { url: img } });
     });
 
-    // إضافة جميع صور الفضلات
     caseImages.feces.forEach(img => {
         contentArray.push({ type: "image_url", image_url: { url: img } });
     });
 
-    // إضافة جميع صور الأعضاء مع التسمية
     caseImages.organs.forEach(item => {
         contentArray.push({ type: "text", text: `High resolution image of organ: ${item.type}` });
         contentArray.push({ type: "image_url", image_url: { url: item.data } });
