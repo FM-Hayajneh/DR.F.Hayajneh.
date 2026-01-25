@@ -1,5 +1,5 @@
 /**
- * app.js - النسخة النهائية الشاملة (مع تقرير PDF الاحترافي)
+ * app.js - النسخة النهائية المصححة (حل مشكلة PDF الفارغ + تعدد لغات وصور)
  */
 
 const analyzeBtn = document.getElementById('analyzeBtn');
@@ -10,7 +10,6 @@ const uploadGrid = document.getElementById('uploadGrid');
 const addOrganBtn = document.getElementById('addOrganBtn');
 const dynamicOrgansArea = document.getElementById('dynamic-organs-area');
 const langBtn = document.getElementById('langBtn');
-// --- إضافة زر الـ PDF ---
 const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
 // المدخلات
@@ -41,25 +40,21 @@ const dictionary = {
         noteT: "تنويه هام", note1: "هذا النظام يستخدم أحدث تقنيات التكنولوجيا (Generative GPT).", 
         note2: "النتائج هي للاسترشاد الطبي ومطلوب مراجعتها من قبل مختص.",
         foot: "المحلل البيطري",
-        // القوائم
         optTypeDef: "-- اختر النوع --", optType1: "الجدات (Grandparents)", optType2: "الأمهات (Parents)", 
         optType3: "اللاحم (Broilers)", optType4: "البياض (Layers)",
         optAgeDef: "-- اختر العمر --",
-        // الأعضاء
         organHead: "عضو تشريحي إضافي", organLbl: "اختر العضو:", organHint: "اختر العضو ثم اضغط للرفع",
         organList: {
             "Liver": "الكبد (Liver)", "Intestine": "الأمعاء (Intestine)", "Heart": "القلب (Heart)", 
             "Gizzard": "القونصة (Gizzard)", "Lungs": "الرئتان (Lungs)", "Kidney": "الكلى (Kidney)", 
             "Spleen": "الطحال (Spleen)", "Brain": "الدماغ (Brain)", "Other": "عضو آخر"
         },
-        // نتائج التقرير
         rType: "النوع:", rReason: "سبب التصنيف:", 
         rEst: "التقديرات الحيوية", rWeight: "الوزن التقديري", rAge: "العمر التقديري",
         rDiag: "التشخيص الأساسي", rConf: "نسبة الاشتباه:", rSum: "💡 الخلاصة والربط بين الأعراض:", rRef: "المراجع:",
         rAlt: "التشخيص التفريقي (احتمالات أخرى)",
         rTreat: "خطة العلاج المتكاملة", rIso: "العزل:", rMeds: "الدواء:", rEnv: "البيئة:", rRead: "اقرأ المزيد",
         rPrev: "الوقاية",
-        // --- نصوص PDF الجديدة ---
         pdfTitle: "تقرير تشخيص بيطري", pdfDate: "تاريخ التقرير:", pdfInputs: "ملخص بيانات الحالة",
         pdfFooter: "تم إصدار هذا التقرير آلياً بواسطة نظام المحلل البيطري الذكي"
     },
@@ -81,25 +76,21 @@ const dictionary = {
         noteT: "Important Disclaimer", note1: "This system uses Generative AI technology.", 
         note2: "Results are for guidance only and require professional review.",
         foot: "Vet Analyst",
-        // Options
         optTypeDef: "-- Select Type --", optType1: "Grandparents", optType2: "Parents", 
         optType3: "Broilers", optType4: "Layers",
         optAgeDef: "-- Select Age --",
-        // Organs
         organHead: "Additional Anatomical Organ", organLbl: "Select Organ:", organHint: "Select organ then click to upload",
         organList: {
             "Liver": "Liver", "Intestine": "Intestine", "Heart": "Heart", 
             "Gizzard": "Gizzard", "Lungs": "Lungs", "Kidney": "Kidney", 
             "Spleen": "Spleen", "Brain": "Brain", "Other": "Other"
         },
-        // Report Results
         rType: "Type:", rReason: "Reasoning:", 
         rEst: "Vital Estimates", rWeight: "Est. Weight", rAge: "Est. Age",
         rDiag: "Primary Diagnosis", rConf: "Confidence:", rSum: "💡 Summary & Correlation:", rRef: "References:",
         rAlt: "Differential Diagnosis (Alternatives)",
         rTreat: "Treatment Protocol", rIso: "Isolation:", rMeds: "Meds:", rEnv: "Env:", rRead: "Read More",
         rPrev: "Prevention",
-        // --- PDF Texts ---
         pdfTitle: "Veterinary Diagnosis Report", pdfDate: "Report Date:", pdfInputs: "Case Data Summary",
         pdfFooter: "Generated automatically by Smart Vet Analyst System"
     }
@@ -131,7 +122,6 @@ function switchLanguage() {
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLang;
     
-    // تحديث النصوص
     updateElementText('txt-logo', t.logo);
     updateElementText('txt-nav', t.nav);
     updateElementText('txt-new', t.new);
@@ -404,7 +394,7 @@ if (analyzeBtn) {
     });
 }
 
-// --- دالة إنشاء PDF الاحترافي (جديدة) ---
+// --- دالة إنشاء PDF الاحترافي (المعدلة لإضافة العنصر للصفحة) ---
 if (downloadPdfBtn) {
     downloadPdfBtn.addEventListener('click', generateProfessionalPDF);
 }
@@ -412,20 +402,25 @@ if (downloadPdfBtn) {
 function generateProfessionalPDF() {
     const t = dictionary[currentLang];
     
-    // 1. إنشاء حاوية التقرير
+    // 1. إنشاء العنصر وإضافته للصفحة
     const element = document.createElement('div');
+    element.id = 'temp-pdf-container';
+    
+    // إخفاء العنصر عن المستخدم لكن إبقاءه متاحاً للطباعة
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.top = '0';
+    element.style.width = '800px'; 
     element.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
     element.style.fontFamily = "'Tajawal', sans-serif";
     element.style.padding = '20px';
     element.style.background = '#ffffff';
     element.style.color = '#333';
 
-    // 2. التاريخ
+    // 2. تجميع البيانات
     const date = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
-
-    // 3. قسم بيانات القطيع (ملخص)
     const flockInfo = `
-        <div style="background:#f8f9fa; border:1px solid #eee; border-radius:10px; padding:15px; margin-bottom:20px;">
+        <div style="background:#f8f9fa; border:1px solid #ddd; border-radius:10px; padding:15px; margin-bottom:20px;">
             <h3 style="color:#4361ee; margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">${t.pdfInputs}</h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.9rem;">
                 <div><strong>${t.lblType}</strong> ${flockTypeInput.value}</div>
@@ -440,9 +435,7 @@ function generateProfessionalPDF() {
         </div>
     `;
 
-    // 4. بناء الهيكل الكامل
-    // ننسخ محتوى النتائج (#bitar) ولكننا نعدله قليلاً ليكون مناسباً للطباعة
-    // ملاحظة: html2pdf سيأخذ الستايل الموجود، لذا البطاقات ستظهر كما هي في الموقع وهذا جيد
+    // 3. نسخ المحتوى
     const resultsContent = document.getElementById('bitar').innerHTML;
 
     element.innerHTML = `
@@ -463,7 +456,10 @@ function generateProfessionalPDF() {
         </div>
     `;
 
-    // 5. إعدادات التحويل
+    // 4. إضافة العنصر للصفحة فعلياً
+    document.body.appendChild(element);
+
+    // 5. التحويل والحفظ ثم الإزالة
     const opt = {
         margin:       [0.5, 0.5],
         filename:     `Vet-Report-${Date.now()}.pdf`,
@@ -472,8 +468,9 @@ function generateProfessionalPDF() {
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
 
-    // 6. التنفيذ
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.body.removeChild(element); // تنظيف بعد التحميل
+    });
 }
 
 async function getAnalysisFromGPT() {
