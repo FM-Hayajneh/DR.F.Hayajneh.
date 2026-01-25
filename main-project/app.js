@@ -1,13 +1,16 @@
-/**
- * app.js - النسخة النهائية (بيانات القطيع + اتصال آمن عبر Netlify Functions)
+/*
+app.js
  */
-
 
 const analyzeBtn = document.getElementById('analyzeBtn');
 const loadingState = document.getElementById('loadingState');
 const resultsSection = document.getElementById('resultsArea');
-const bitar = document.getElementById('bitar'); // الحفاظ على متغيرك
+const bitar = document.getElementById('bitar');
 const uploadGrid = document.getElementById('uploadGrid');
+
+
+const addOrganBtn = document.getElementById('addOrganBtn');
+const dynamicOrgansArea = document.getElementById('dynamic-organs-area');
 
 
 const flockTypeInput = document.getElementById('flock-type');
@@ -25,16 +28,15 @@ const symptomsList = [
 ];
 
 let caseImages = {
-    chicken: null,
-    feces: null,
-    organ: null
+    chicken: [],
+    feces: [],   
+    organs: []   
 };
 let selectedSymptoms = [];
 
 
 function checkAllInputsAndToggle() {
     const hasSymptoms = selectedSymptoms.length > 0;
-    
     
     const isTypeFilled = flockTypeInput && flockTypeInput.value !== "";
     const isAgeFilled = flockAgeInput && flockAgeInput.value !== "";
@@ -84,67 +86,144 @@ if (symptomsContainer) {
     });
 }
 
-const organSelect = document.getElementById('organ-type');
-const organInput = document.getElementById('input-organ');
-const organArea = document.getElementById('area-organ');
 
-if (organSelect && organInput && organArea) {
-    organSelect.addEventListener('change', function () {
-        if (this.value !== "") {
-            organInput.disabled = false;
-            organArea.classList.remove('disabled-upload');
-            const pText = organArea.querySelector('p');
-            if (pText) pText.textContent = "اضغط لرفع صورة " + this.options[this.selectedIndex].text;
-        }
-    });
-
-    organArea.addEventListener('click', function () {
-        if (organInput.disabled) {
-            alert("⚠️ يرجى تحديد العضو من القائمة أولاً لضمان دقة التشخيص.");
-        } else {
-            organInput.click();
-        }
-    });
-}
-
-
-function handleUpload(inputId, previewId, areaId, type) {
+function handleMultiUpload(inputId, containerId, type) {
     const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    const area = document.getElementById(areaId);
+    const container = document.getElementById(containerId);
 
     if (!input) return;
 
     input.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (file) {
+        const files = Array.from(e.target.files);
+        
+        files.forEach(file => {
             const reader = new FileReader();
-            reader.onload = function (e) {
-                caseImages[type] = e.target.result;
-                if (preview) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-
-                const icon = area.querySelector('.upload-icon');
-                const text = area.querySelector('p');
-                if (icon) icon.style.display = 'none';
-                if (text) text.style.display = 'none';
+            reader.onload = function (event) {
+           
+                caseImages[type].push(event.target.result);
+                
+          
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.className = 'mini-preview-thumb'; 
+                container.appendChild(img);
+                
+           
+                const parentArea = container.parentElement;
+                const icon = parentArea.querySelector('.upload-icon');
+                const text = parentArea.querySelector('p');
+                if(icon) icon.style.display = 'none';
+                if(text) text.style.display = 'none';
 
                 checkAnalyzeButton();
             };
             reader.readAsDataURL(file);
-        }
+        });
     });
 }
 
-handleUpload('input-chicken', 'preview-chicken', 'area-chicken', 'chicken');
-handleUpload('input-feces', 'preview-feces', 'area-feces', 'feces');
-handleUpload('input-organ', 'preview-organ', 'area-organ', 'organ');
+
+handleMultiUpload('input-chicken', 'preview-chicken-container', 'chicken');
+handleMultiUpload('input-feces', 'preview-feces-container', 'feces');
+
+
+
+function createNewOrganCard() {
+    const card = document.createElement('div');
+    card.className = 'upload-card organ-card';
+    
+
+    card.innerHTML = `
+        <button class="remove-organ-btn" onclick="removeOrganCard(this)">×</button>
+        <div class="upload-header">
+            <i class="fas fa-microscope"></i>
+            <h3>عضو تشريحي إضافي</h3>
+        </div>
+        <div style="padding: 0 20px 15px;">
+            <label style="display:block; margin-bottom:5px; font-size:0.9rem; color:#666;">اختر العضو:</label>
+            <select class="form-select organ-selector" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                <option value="" disabled selected>-- القائمة --</option>
+                <option value="Liver">الكبد (Liver)</option>
+                <option value="Intestine">الأمعاء (Intestine)</option>
+                <option value="Heart">القلب (Heart)</option>
+                <option value="Gizzard">القونصة (Gizzard)</option>
+                <option value="Lungs">الرئتان (Lungs)</option>
+                <option value="Kidney">الكلى (Kidney)</option>
+                <option value="Spleen">الطحال (Spleen)</option>
+                <option value="Brain">الدماغ (Brain)</option>
+                <option value="Other">عضو آخر</option>
+            </select>
+        </div>
+        <div class="upload-area" onclick="triggerOrganInput(this)">
+            <div class="upload-icon"><i class="fas fa-camera"></i></div>
+            <p>اختر العضو ثم اضغط للرفع</p>
+            <div class="multi-preview-grid"></div>
+        </div>
+        <input type="file" accept="image/*" hidden onchange="processOrganFile(this)">
+    `;
+    
+  
+    dynamicOrgansArea.appendChild(card);
+}
+
+
+if(addOrganBtn) {
+    addOrganBtn.addEventListener('click', createNewOrganCard);
+}
+
+
+window.triggerOrganInput = function(area) {
+    const select = area.parentElement.querySelector('.organ-selector');
+    if (select.value === "") {
+        alert("⚠️ يرجى اختيار نوع العضو من القائمة أولاً!");
+        select.focus();
+    } else {
+        area.parentElement.querySelector('input[type="file"]').click();
+    }
+}
+
+window.processOrganFile = function(input) {
+    const file = input.files[0];
+    const card = input.parentElement;
+    const type = card.querySelector('.organ-selector').value;
+    const container = card.querySelector('.multi-preview-grid');
+    const area = card.querySelector('.upload-area');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+ 
+            caseImages.organs.push({ type: type, data: e.target.result });
+            
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'mini-preview-thumb';
+            container.appendChild(img);
+            
+   
+            const icon = area.querySelector('.upload-icon');
+            const text = area.querySelector('p');
+            if(icon) icon.style.display = 'none';
+            if(text) text.style.display = 'none';
+            
+            checkAnalyzeButton();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+window.removeOrganCard = function(btn) {
+    
+    btn.parentElement.remove();
+    
+    checkAnalyzeButton();
+}
 
 function checkAnalyzeButton() {
-    const hasAnyImage = caseImages.chicken || caseImages.feces || caseImages.organ;
-    if (analyzeBtn) analyzeBtn.disabled = !hasAnyImage;
+
+    const hasImages = caseImages.chicken.length > 0 || caseImages.feces.length > 0 || caseImages.organs.length > 0;
+    if (analyzeBtn) analyzeBtn.disabled = !hasImages;
 }
 
 
@@ -172,8 +251,8 @@ if (analyzeBtn) {
     });
 }
 
+
 async function getAnalysisFromGPT() {
-    const organType = document.getElementById('organ-type') ? document.getElementById('organ-type').value : "Unspecified";
     
     const flockType = flockTypeInput ? flockTypeInput.value : "Unknown";
     const flockAge = flockAgeInput ? flockAgeInput.value : "Unknown";
@@ -188,18 +267,14 @@ async function getAnalysisFromGPT() {
     Context Provided:
     - **Flock Data:** Type: ${flockType}, Age: ${flockAge}, Size: ${flockCount}, Mortality: ${mortality}
     - **Clinical History / Symptoms Reported:** ${historyText}
-    - Chicken Image: ${caseImages.chicken ? "Provided" : "Not provided"}
-    - Feces Image: ${caseImages.feces ? "Provided" : "Not provided"}
-    - Organ Image: ${caseImages.organ ? "Provided" : "Not provided"} 
-    ${caseImages.organ ? `(Selected Organ: **${organType}**)` : ""}
+    
+    Images Provided:
+    The user has uploaded multiple images. Some are general appearance, some are feces/environment, and some are specific organs labeled clearly.
     
     CRITICAL INSTRUCTIONS:
     1. **Correlate findings:** Connect symptoms from all images.
     2. **Probability:** MUST be a percentage (e.g., '95%').
-    3. **Diagnosis Reasoning:** - If Chicken exists: Analyze Head, Balance, Movement, Eyes, Feathers.
-        - If Feces exists: Analyze Color, Consistency.
-        - **If Organ exists (${organType}):** You MUST provide a professional pathological description. Describe: Enlargement, Color (pale/dark), Lesions (spots, necrosis, hemorrhages), Texture, and Fibrin presence. Use specific terms like "Multifocal necrosis", "Petechial hemorrhage", "Enlarged/Hepatomegaly".
-        - **If "Eggs" is selected:** Analyze egg shell quality, shape, texture (rough/sandy), thickness, and color abnormalities.
+    3. **Diagnosis Reasoning:** Analyze Head, Balance, Movement, Eyes, Feathers, Feces, and specifically describe any Organ lesions (Enlargement, Color, Necrosis).
     4. **Diagnosis Summary:** Synthesize all findings into a conclusion.
     
     Produce a JSON report strictly following this structure in ARABIC:
@@ -213,35 +288,35 @@ async function getAnalysisFromGPT() {
             "probability": "String (e.g. '95%')",
             "diagnosis_summary": "String (الخلاصة)",
             "detailed_reasoning": {
-                "head": "String ( مثال: انحناء شديد والتفاف غير طبيعي للرأس والرقبة باتجاه الأسفل/الجانب)",
-                "balance": "String (مثال: وضعية الجسم غير مستقرة، ما يدل على خلل في التوازن العصبي)",
-                "movement": "String (مثال: تُظهر الصورة صعوبة واضحة في التحكم بوضع الرأس)",
-                "eyes": "String (مثال: تبدو مفتوحة لكن اتجاه الرأس غير طبيعي)",
-                "feathers": "String (مثال: مظهره غير مرتب نسبيًا، ما قد يدل على إجهاد أو مرض)",
+                "head": "String",
+                "balance": "String",
+                "movement": "String",
+                "eyes": "String",
+                "feathers": "String",
                 "feces_color": "String (Or 'N/A')",
                 "feces_consistency": "String (Or 'N/A')",
-                "feces_context": "String (Where is the feces? Or 'N/A')",
-                "organ_analysis": "String (وصف دقيق للعضو المختار - الآفات واللون والحجم. Or 'N/A' if no organ)"
+                "feces_context": "String",
+                "organ_analysis": "String (وصف دقيق للأعضاء المرفقة)"
             },
             "links": ["https://www.google.com/search?q=DISEASE_NAME_EN+symptoms+poultry"]
         },
         "5_alternatives": { 
             "diseases": [ 
                 {
-                    "name_ar": "String (اسم المرض بالعربية)", 
-                    "name_en": "String (English Name)", 
-                    "prob": "String (e.g. '30%')", 
-                    "reason": "String (One concise sentence explaining why this is a possibility)", 
+                    "name_ar": "String", 
+                    "name_en": "String", 
+                    "prob": "String", 
+                    "reason": "String", 
                     "link": "https://www.google.com/search?q=DISEASE_NAME_EN+poultry"
                 } 
             ] 
         },
         "6_treatment": { 
-            "isolation": "String (مثال: مطلوب عزل الطائر أو وضعه بمكان آخر)", 
-            "feed_water": "String (إضافات العلف والماء والتغذية المطلوبة)", 
-            "medication": "String (Drug names, dosages, and method of administration)", 
-            "environment": "String (Humidity, temperature, chicken house, ventilation, and required adjustments)", 
-            "tests": "String (e.g.(PCR, RT-PCR, ELISA, Hemagglutination Inhibition (HI) test, Rapid Plate Agglutination (RPA), Bacterial culture and antibiotic sensitivity testing))", 
+            "isolation": "String", 
+            "feed_water": "String", 
+            "medication": "String", 
+            "environment": "String", 
+            "tests": "String", 
             "link": "https://www.google.com/search?q=DISEASE_NAME_EN+treatment+protocol+poultry" 
         },
         "7_prevention": { "steps": "String", "link": "String" }
@@ -251,13 +326,25 @@ async function getAnalysisFromGPT() {
 
     let contentArray = [{ type: "text", text: promptText }];
 
-    if (caseImages.chicken) contentArray.push({ type: "image_url", image_url: { url: caseImages.chicken } });
-    if (caseImages.feces) contentArray.push({ type: "image_url", image_url: { url: caseImages.feces } });
-    if (caseImages.organ) contentArray.push({ type: "image_url", image_url: { url: caseImages.organ } });
+  
+    caseImages.chicken.forEach(img => {
+        contentArray.push({ type: "image_url", image_url: { url: img } });
+    });
+
+    
+    caseImages.feces.forEach(img => {
+        contentArray.push({ type: "image_url", image_url: { url: img } });
+    });
+
+    
+    caseImages.organs.forEach(item => {
+        contentArray.push({ type: "text", text: `صورة تشريحية للعضو التالي: ${item.type}` });
+        contentArray.push({ type: "image_url", image_url: { url: item.data } });
+    });
 
     const response = await fetch("/.netlify/functions/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, // لا نحتاج Authorization هنا
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             model: "gpt-4o",
             messages: [{ role: "user", content: contentArray }],
@@ -322,11 +409,10 @@ function renderReport(data) {
     }
 
     let organHtml = '';
-    const selectedOrganName = document.getElementById('organ-type') ? document.getElementById('organ-type').options[document.getElementById('organ-type').selectedIndex].text : "عضو";
     if (reasons.organ_analysis && reasons.organ_analysis !== 'N/A') {
         organHtml = `
         <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:15px;">
-            <h6 style="color:#c62828; margin-bottom:10px; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-heartbeat"></i> الفحص التشريحي (${selectedOrganName}):</h6>
+            <h6 style="color:#c62828; margin-bottom:10px; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-heartbeat"></i> الفحص التشريحي:</h6>
             <div style="color:#444; font-size:0.95rem; line-height:1.6; padding-right:10px;">${reasons.organ_analysis}</div>
         </div>`;
     }
@@ -434,4 +520,3 @@ function createCard(icon, title, content, isOpen = false) {
 
     bitar.appendChild(card);
 }
-
