@@ -1,5 +1,1 @@
-[build]
- 
-  publish = "."
 
-  functions = "main-project/netlify/functions"
